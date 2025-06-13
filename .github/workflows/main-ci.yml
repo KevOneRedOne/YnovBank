@@ -17,24 +17,31 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "./app/package-lock.json"
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
 
       - name: Install dependencies for API
         run: |
           cd api
           go mod tidy
 
+      - name: Test API
+        run: |
+          cd api
+          go test ./...
+
       - name: Install dependencies for App
         run: |
           cd app
-          npm install
-          
-      - name: Fix package-lock.json
-        run: |
-          cd app
-          npm i --package-lock-only --no-audit
+          npm ci
 
       - name: Build App
         run: |
@@ -45,31 +52,35 @@ jobs:
     name: Semantic Release
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
 
-      # Installation des plugins semantic-release pour l'application Nuxt
+      - name: Semantic Release for API
+        uses: go-semantic-release/action@v1
+        with:
+          github-token: ${{ secrets.TOKEN_GITHUB }}
+          allow-initial-development-versions: true
+          changelog-file: api/CHANGELOG.md
+        env:
+          GITHUB_WORKING_DIR: ./api
+
       - name: Install semantic-release and plugins for App
         run: |
           npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
 
-      # Pour l'API Go - utilisation de go-semantic-release/action
-      - name: Semantic Release for API
-        uses: go-semantic-release/action@v1
-        with:
-          prerelease: false
-        env:
-          GITHUB_WORKING_DIR: ./api
-
-      # Pour l'App version update
       - name: Semantic Release for App
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
@@ -81,12 +92,16 @@ jobs:
     name: Create GitHub Release
     needs: semantic-release
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Get the SHA of the latest commit
         id: sha
@@ -95,7 +110,6 @@ jobs:
       - name: Get API version
         id: api_version
         run: |
-          # Récupérer la dernière version de l'API à partir des tags générés par go-semantic-release
           API_VERSION=$(git tag --list "v*" --sort=-v:refname | grep -v '.*-.*' | head -n 1 | sed 's/^v//')
           if [ -z "$API_VERSION" ]; then
             API_VERSION="0.0.0"
@@ -122,25 +136,33 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
-          # Create the release body
+          RELEASE_TAG="v${{ steps.app_version.outputs.version }}"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists, skipping..."
+            exit 0
+          fi
+
           RELEASE_BODY="## YnovBank Release
 
-          API Version: v${{ steps.api_version.outputs.version }}
-          App Version: v${{ steps.app_version.outputs.version }}
-          Release Date: ${{ steps.date.outputs.date }}
+          🚀 **API Version:** v${{ steps.api_version.outputs.version }}
+          📱 **App Version:** v${{ steps.app_version.outputs.version }}
+          📅 **Release Date:** ${{ steps.date.outputs.date }}
 
-          ### What's New
+          ### 📝 Recent Changes
           ${{ steps.get_commits.outputs.commits }}
 
-          Commit messages:
-          ${{ github.event.head_commit.message }}"
+          ### 🔗 Links
+          - [API Documentation](./api/)
+          - [App Documentation](./app/)
 
-          # Create the release with GitHub CLI
+          ---
+          **Full Changelog:** [Compare changes](https://github.com/${{ github.repository }}/compare/v${{ steps.api_version.outputs.version }}...v${{ steps.app_version.outputs.version }})"
+
           echo "$RELEASE_BODY" > release_notes.md
 
-          # Create the release using the App version (you can adjust this strategy)
-          gh release create "v${{ steps.app_version.outputs.version }}" \
-            --title "Release v${{ steps.app_version.outputs.version }} - ${{ steps.date.outputs.date }}" \
-            --notes-file release_notes.md
+          gh release create "$RELEASE_TAG" \
+            --title "🎉 YnovBank v${{ steps.app_version.outputs.version }}" \
+            --notes-file release_notes.md \
+            --generate-notes
