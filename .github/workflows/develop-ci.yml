@@ -17,14 +17,26 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "./app/package-lock.json"
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
 
       - name: Install dependencies for API
         run: |
           cd api
           go mod tidy
+
+      - name: Test API
+        run: |
+          cd api
+          go test ./...
 
       - name: Install dependencies for App
         run: |
@@ -36,32 +48,38 @@ jobs:
           cd app
           npm i --package-lock-only --no-audit
 
+      - name: Test App
+        run: |
+          cd app
+          npm test || echo "No tests to run"
+
       - name: Build App
         run: |
           cd app
           npm run build
 
-      # Ajout d'étapes de test qui n'impactent pas la version
-      - name: Run tests for App
-        run: |
-          cd app
-          # Assurez-vous que vous avez un script de test dans package.json
-          npm test || echo "No tests to run"
-
   semantic-release-dry-run:
     name: Semantic Release Dry Run
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
           
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@kevoneredone'
           
       # Installation des plugins semantic-release pour l'application Nuxt
       - name: Install semantic-release and plugins for App
@@ -71,16 +89,20 @@ jobs:
       # Pour l'API Go - utilisation de go-semantic-release/action
       - name: Semantic Release Dry Run for API
         uses: go-semantic-release/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          GITHUB_WORKING_DIR: ./api
         with:
+          github-token: ${{ secrets.TOKEN_GITHUB }}
           dry: true
           prerelease: true
-        env:
-          GITHUB_WORKING_DIR: ./api
+          changelog-file: api/CHANGELOG.md
+          version-file: true
       
       # Pour l'App - en mode dry-run pour ne pas créer de version réelle
       - name: Semantic Release Dry Run for App
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}xs
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           cd app
           npx semantic-release --dry-run
@@ -89,12 +111,15 @@ jobs:
     name: Create Preview Summary
     needs: semantic-release-dry-run
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: develop
           fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Get the SHA of the latest commit
         id: sha
@@ -144,7 +169,7 @@ jobs:
           cp preview_summary.md ./artifacts/
 
       - name: Upload Preview Summary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: preview-summary
           path: artifacts/preview_summary.md
@@ -156,6 +181,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN_GITHUB }}
 
       # Simule un déploiement vers un environnement de staging
       - name: Deploy to Staging Environment
