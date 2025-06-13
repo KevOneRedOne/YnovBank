@@ -33,3 +33,19 @@ YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se co
 - Contenu du fichier .gitlab-ci.yaml
 - Lien vers repo Git public
 - Documentation du projet (Code, Dockerfile, Explications)
+
+# API
+## lancer l'api en dev 
+go run main.go
+## Faire un build (sur windows) : 
+go build -o gin-api.exe
+## Lancer l'api en prod (sur windows) :
+./gin-api.exe
+## Faire un build (sur linux) : 
+go build -o gin-api
+## Lancer l'api en prod (sur linux)
+./gin-api
+## Lancer avec Docker 
+docker build -t gin-api .
+docker run -p 8080:8080 gin-api
+
