@@ -64,39 +64,6 @@ jobs:
           cd app
           npm run build
 
-      - name: Increment API version
-        if: steps.changed-files.outputs.any_changed == 'true' && contains(steps.changed-files.outputs.all_changed_files, 'api/')
-        run: |
-          cd api
-          # Lire la version actuelle
-          CURRENT_VERSION=$(grep -o 'Version = "[0-9]*\.[0-9]*\.[0-9]*"' version.go | cut -d'"' -f2)
-          # Incrémenter la version mineure
-          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
-          NEW_VERSION="$major.$((minor + 1)).$patch"
-          # Mettre à jour le fichier version.go
-          sed -i "s/Version = \"$CURRENT_VERSION\"/Version = \"$NEW_VERSION\"/" version.go
-          echo "API version incremented to $NEW_VERSION"
-
-      - name: Increment App version
-        if: steps.changed-files.outputs.any_changed == 'true' && contains(steps.changed-files.outputs.all_changed_files, 'app/')
-        run: |
-          cd app
-          # Lire la version actuelle
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          # Incrémenter la version mineure
-          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
-          NEW_VERSION="$major.$((minor + 1)).$patch"
-          # Mettre à jour package.json
-          npm version $NEW_VERSION --no-git-tag-version
-          echo "App version incremented to $NEW_VERSION"
-
-      - name: Commit version changes
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          git add .
-          git commit -m "chore: increment version numbers" || echo "No changes to commit"
-          git push
-
   semantic-release:
     name: Semantic Release
     needs: build-and-push
@@ -220,3 +187,50 @@ jobs:
             --title "🎉 YnovBank v${{ steps.app_version.outputs.version }}" \
             --notes-file release_notes.md \
             --generate-notes
+
+  increment-versions:
+    name: Increment Versions
+    needs: create-release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'kevoneredone'
+          git config --global user.email 'kevinalves@hotmail.fr'
+
+      - name: Increment API version
+        run: |
+          cd api
+          # Lire la version actuelle
+          CURRENT_VERSION=$(grep -o 'Version = "[0-9]*\.[0-9]*\.[0-9]*"' version.go | cut -d'"' -f2)
+          # Incrémenter la version mineure
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$((minor + 1)).$patch"
+          # Mettre à jour le fichier version.go
+          sed -i "s/Version = \"$CURRENT_VERSION\"/Version = \"$NEW_VERSION\"/" version.go
+          echo "API version incremented to $NEW_VERSION"
+
+      - name: Increment App version
+        run: |
+          cd app
+          # Lire la version actuelle
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          # Incrémenter la version mineure
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$((minor + 1)).$patch"
+          # Mettre à jour package.json
+          npm version $NEW_VERSION --no-git-tag-version
+          echo "App version incremented to $NEW_VERSION"
+
+      - name: Commit version changes
+        run: |
+          git add .
+          git commit -m "chore: increment version numbers" || echo "No changes to commit"
+          git push
