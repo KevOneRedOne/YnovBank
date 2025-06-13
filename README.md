@@ -12,10 +12,23 @@ YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se co
 - **Tests** : Jest pour tests unitaires et d'intégration
 
 ### DevOps
-- **Workflow Git** : GitFlow avec règle de MR (minimum 2 personnes pour approuver une merge request)
-- **Conteneurisation** : Dockerfile
-- **Artifact** : Docker Hub ou GitLab Registry
-- **CI/CD** : GitLab CI avec stages build, test, artefact, release, deploy
+- **Workflow Git** : GitFlow avec protection des branches main et develop
+  - Pull requests obligatoires pour les modifications
+  - Branches protégées nécessitant des approbations
+- **CI/CD** : GitHub Actions avec les workflows suivants :
+  - **Build and Push** :
+    - Installation des dépendances (Node.js et Go)
+    - Tests unitaires pour l'API et l'application
+    - Build de l'application
+  - **Semantic Release** :
+    - Versionnement automatique pour l'API et l'application
+    - Génération des changelogs
+    - Création des tags de version
+  - **Create Release** :
+    - Création automatique des releases GitHub
+    - Génération des notes de release avec les changements récents
+  - **Increment Versions** :
+    - Incrémentation automatique des versions pour l'API et l'application
 - **Versionnement** : semantic-release avec Conventional Commits
 - **Déploiement** :
   - Staging (develop branch) : Render ou fly.io
