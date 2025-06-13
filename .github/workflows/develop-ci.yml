@@ -72,12 +72,11 @@ jobs:
       - name: Semantic Release Dry Run for API
         uses: go-semantic-release/action@v1
         with:
-          bin: ./semantic-release
           dry: true
           prerelease: true
-          working-directory: ./api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_WORKING_DIR: ./api
       
       # Pour l'App - en mode dry-run pour ne pas créer de version réelle
       - name: Semantic Release Dry Run for App

@@ -65,10 +65,10 @@ jobs:
       - name: Semantic Release for API
         uses: go-semantic-release/action@v1
         with:
-          bin: ./semantic-release
-          working-directory: ./api
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_WORKING_DIR: ./api
 
       # Pour l'App version update
       - name: Semantic Release for App
