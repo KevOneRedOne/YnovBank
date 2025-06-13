@@ -2,6 +2,14 @@
 
 <!-- Provide a brief description of the changes introduced by this PR -->
 
+## Commits
+
+<!-- List all commits included in this PR -->
+```bash
+# Pour obtenir la liste des commits, exécutez :
+git log $(git merge-base HEAD main)..HEAD --pretty=format:"* %s (%h)" --no-merges
+```
+
 ## Related Issue(s)
 
 <!-- Link to the related issues. Use keywords like "Fixes", "Closes", or "Resolves" followed by the issue number, e.g., "Fixes #123" -->
