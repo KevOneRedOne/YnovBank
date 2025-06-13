@@ -3,16 +3,8 @@ name: Build, Test and Deploy - Develop Branch
 on:
   push:
     branches: [develop]
-    paths-ignore:
-      - '**/version.go'
-      - '**/package.json'
-      - '**/package-lock.json'
   pull_request:
     branches: [develop]
-    paths-ignore:
-      - '**/version.go'
-      - '**/package.json'
-      - '**/package-lock.json'
 
 jobs:
   build-and-push:
