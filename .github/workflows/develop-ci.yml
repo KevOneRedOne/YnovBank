@@ -1,0 +1,7 @@
+name: Build, Test and Deploy - Develop Branch
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
