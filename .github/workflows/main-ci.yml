@@ -208,12 +208,21 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.TOKEN_GITHUB }}
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v39
+        with:
+          files: |
+            api/**
+            app/**
+
       - name: Configure Git
         run: |
           git config --global user.name 'kevoneredone'
           git config --global user.email 'kevinalves@hotmail.fr'
 
       - name: Increment API version
+        if: steps.changed-files.outputs.api_changed == 'true'
         run: |
           cd api
           # Lire la version actuelle
@@ -226,6 +235,7 @@ jobs:
           echo "API version incremented to $NEW_VERSION"
 
       - name: Increment App version
+        if: steps.changed-files.outputs.app_changed == 'true'
         run: |
           cd app
           # Lire la version actuelle
@@ -238,6 +248,7 @@ jobs:
           echo "App version incremented to $NEW_VERSION"
 
       - name: Commit version changes
+        if: steps.changed-files.outputs.api_changed == 'true' || steps.changed-files.outputs.app_changed == 'true'
         run: |
           git add .
           git commit -m "chore: bump version numbers" || echo "No changes to commit"
