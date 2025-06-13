@@ -29,8 +29,6 @@ YnovBank is a fictional banking platform developed as part of a Master's Degree 
   - **Create Release**:
     - Automatic GitHub releases
     - Release notes generation with recent changes
-  - **Increment Versions**:
-    - Automatic version increment for API and application
 - **Versioning**: semantic-release with Conventional Commits
 - **Deployment**:
   - Staging (develop branch): Render or fly.io
