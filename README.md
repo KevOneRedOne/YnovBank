@@ -1,113 +1,113 @@
 # YnovBank
 
-## Description du projet
-YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se connecter et d'effectuer des virements. Ce projet est développé avec une pipeline CI/CD automatisée sur GitHub Actions, en utilisant Gitflow pour la gestion des branches et semantic-release pour le versionnement.
+## Project Description
+YnovBank is a fictional banking platform developed as part of a Master's Degree 2 learning unit. This project demonstrates the implementation of a modern banking system allowing users to connect and perform transfers. The project is developed with an automated CI/CD pipeline using GitHub Actions, implementing Gitflow for branch management and semantic-release for versioning.
 
-## Spécifications techniques
+## Technical Specifications
 
-### Stack technique
-- **Backend** : Go/Gin (API REST)
-- **Frontend** : Nuxt.js avec TypeScript
-- **Base de données** : SQLite
-- **Tests** : 
-  - Backend : Tests natifs Go
-  - Frontend : Jest pour tests unitaires et d'intégration
+### Tech Stack
+- **Backend**: Go/Gin (REST API)
+- **Frontend**: Nuxt.js with TypeScript
+- **Database**: SQLite
+- **Testing**: 
+  - Backend: Native Go tests
+  - Frontend: Jest for unit and integration tests
 
 ### DevOps
-- **Workflow Git** : GitFlow avec protection des branches main et develop
-  - Pull requests obligatoires pour les modifications
-  - Branches protégées nécessitant des approbations
-- **CI/CD** : GitHub Actions avec les workflows suivants :
-  - **Build and Push** :
-    - Installation des dépendances (Node.js et Go)
-    - Tests unitaires pour l'API et l'application
-    - Build de l'application
-  - **Semantic Release** :
-    - Versionnement automatique pour l'API et l'application
-    - Génération des changelogs
-    - Création des tags de version
-  - **Create Release** :
-    - Création automatique des releases GitHub
-    - Génération des notes de release avec les changements récents
-  - **Increment Versions** :
-    - Incrémentation automatique des versions pour l'API et l'application
-- **Versionnement** : semantic-release avec Conventional Commits
-- **Déploiement** :
-  - Staging (develop branch) : Render ou fly.io
-  - Production (master branch) : Render ou fly.io
-- **Notifications** : Emails envoyés à notif-cicd@joelkoussawo.me
+- **Git Workflow**: GitFlow with main and develop branch protection
+  - Mandatory pull requests for modifications
+  - Protected branches requiring approvals
+- **CI/CD**: GitHub Actions with the following workflows:
+  - **Build and Push**:
+    - Dependencies installation (Node.js and Go)
+    - Unit tests for API and application
+    - Application build
+  - **Semantic Release**:
+    - Automatic versioning for API and application
+    - Changelog generation
+    - Version tag creation
+  - **Create Release**:
+    - Automatic GitHub releases
+    - Release notes generation with recent changes
+  - **Increment Versions**:
+    - Automatic version increment for API and application
+- **Versioning**: semantic-release with Conventional Commits
+- **Deployment**:
+  - Staging (develop branch): Render or fly.io
+  - Production (master branch): Render or fly.io
+- **Notifications**: Emails sent to notif-cicd@joelkoussawo.me
 
-## Livrables
-- Lien vers le repo Git avec README complet présentant le projet
-- Démo (26 Juin)
-- Rapport (26 Juin) à envoyer à formation@joelkoussawo.me
+## Deliverables
+- Git repository link with complete README presenting the project
+- Demo (June 26th)
+- Report (June 26th) to be sent to formation@joelkoussawo.me
 
-## Contenu du rapport
-- Contexte
+## Report Content
+- Context
 - CI/CD
-- Contenu du fichier .ci.yaml
-- Lien vers repo Git public
-- Documentation du projet (Code, Dockerfile, Explications)
+- GitHub Actions workflow files content
+- Public Git repository link
+- Project documentation (Code, Dockerfile, Explanations)
 
 # API
 
-## Prérequis
-- Go 1.21 ou supérieur
-- Docker (optionnel)
+## Prerequisites
+- Go 1.21 or higher
+- Docker (optional)
 
-## Installation et Démarrage
+## Installation and Startup
 
-### Développement Local
+### Local Development
 ```bash
-# Cloner le repository
+# Clone the repository
 git clone https://github.com/kevoneredone/YnovBank.git
 cd YnovBank/api
 
-# Installer les dépendances
+# Install dependencies
 go mod tidy
 
-# Lancer l'API en mode développement
+# Launch API in development mode
 go run main.go
 ```
 
 ### Production
 
-#### Build et Exécution Native
+#### Native Build and Execution
 ```bash
-# Build pour Windows
+# Build for Windows
 go build -o gin-api.exe
 
-# Build pour Linux/MacOS
+# Build for Linux/MacOS
 go build -o gin-api
 
-# Exécution
+# Execution
 # Windows
 ./gin-api.exe
 # Linux/MacOS
 ./gin-api
 ```
 
-#### Utilisation avec Docker
+#### Docker Usage
 ```bash
-# Build de l'image Docker
+# Build Docker image
 docker build -t gin-api .
 
-# Exécution du conteneur
+# Run container
 docker run -p 8080:8080 gin-api
 ```
 
 ## Documentation
-La documentation de l'API est disponible dans le dossier `docs/`. Elle inclut :
-- Les endpoints disponibles
-- Les modèles de données
-- Les exemples de requêtes
+API documentation is available in the `docs/` directory. It includes:
+- Available endpoints
+- Data models
+- Request examples
 
 ## Tests
 ```bash
-# Exécuter tous les tests
+# Run all tests
 go test ./...
 
-# Exécuter les tests avec couverture
+# Run tests with coverage
 go test ./... -cover
 ```
 
