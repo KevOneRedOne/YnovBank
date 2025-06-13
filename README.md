@@ -9,7 +9,7 @@ YnovBank is a fictional banking platform developed as part of a Master's Degree 
 - **Backend**: Go/Gin (REST API)
 - **Frontend**: Nuxt.js with TypeScript
 - **Database**: SQLite
-- **Testing**: 
+- **Testing**:
   - Backend: Native Go tests
   - Frontend: Jest for unit and integration tests
 
