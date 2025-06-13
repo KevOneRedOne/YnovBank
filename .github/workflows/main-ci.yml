@@ -64,6 +64,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -75,15 +76,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@kevoneredone'
 
       - name: Semantic Release for API
         uses: go-semantic-release/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          GITHUB_WORKING_DIR: ./api
         with:
           github-token: ${{ secrets.TOKEN_GITHUB }}
           allow-initial-development-versions: true
           changelog-file: api/CHANGELOG.md
-        env:
-          GITHUB_WORKING_DIR: ./api
+          version-file: true
 
       - name: Install semantic-release and plugins for App
         run: |
