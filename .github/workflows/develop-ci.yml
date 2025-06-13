@@ -75,13 +75,12 @@ jobs:
           dry: true
           prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           GITHUB_WORKING_DIR: ./api
       
       # Pour l'App - en mode dry-run pour ne pas créer de version réelle
       - name: Semantic Release Dry Run for App
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}xs
         run: |
           cd app
           npx semantic-release --dry-run

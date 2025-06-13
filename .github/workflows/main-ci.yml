@@ -67,7 +67,6 @@ jobs:
         with:
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           GITHUB_WORKING_DIR: ./api
 
       # Pour l'App version update
@@ -123,7 +122,7 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create the release body
           RELEASE_BODY="## YnovBank Release
