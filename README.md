@@ -48,17 +48,64 @@ YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se co
 - Documentation du projet (Code, Dockerfile, Explications)
 
 # API
-## lancer l'api en dev 
+
+## Prérequis
+- Go 1.21 ou supérieur
+- Docker (optionnel)
+
+## Installation et Démarrage
+
+### Développement Local
+```bash
+# Cloner le repository
+git clone https://github.com/kevoneredone/YnovBank.git
+cd YnovBank/api
+
+# Installer les dépendances
+go mod tidy
+
+# Lancer l'API en mode développement
 go run main.go
-## Faire un build (sur windows) : 
+```
+
+### Production
+
+#### Build et Exécution Native
+```bash
+# Build pour Windows
 go build -o gin-api.exe
-## Lancer l'api en prod (sur windows) :
-./gin-api.exe
-## Faire un build (sur linux) : 
+
+# Build pour Linux/MacOS
 go build -o gin-api
-## Lancer l'api en prod (sur linux)
+
+# Exécution
+# Windows
+./gin-api.exe
+# Linux/MacOS
 ./gin-api
-## Lancer avec Docker 
+```
+
+#### Utilisation avec Docker
+```bash
+# Build de l'image Docker
 docker build -t gin-api .
+
+# Exécution du conteneur
 docker run -p 8080:8080 gin-api
+```
+
+## Documentation
+La documentation de l'API est disponible dans le dossier `docs/`. Elle inclut :
+- Les endpoints disponibles
+- Les modèles de données
+- Les exemples de requêtes
+
+## Tests
+```bash
+# Exécuter tous les tests
+go test ./...
+
+# Exécuter les tests avec couverture
+go test ./... -cover
+```
 
