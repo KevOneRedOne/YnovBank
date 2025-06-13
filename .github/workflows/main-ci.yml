@@ -7,56 +7,111 @@ on:
     branches: [main]
 
 jobs:
-  # build-and-push:
-  #   name: Build and Push Docker Image
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-      
-  #     # Add your build steps here
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: '18'
-          
-  #     - name: Install dependencies
-  #     - name: Get version from package.json
-  #       id: package_version
-  #       run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-  #       run: npm run build
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  create-release:
-    name: Create GitHub Release
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies for API
+        run: |
+          cd api
+          go mod tidy
+
+      - name: Install dependencies for App
+        run: |
+          cd app
+          npm ci
+
+      - name: Build App
+        run: |
+          cd app
+          npm run build
+
+  semantic-release:
+    name: Semantic Release
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install semantic-release and plugins
+        run: |
+          npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+
+      # For API version update
+      - name: Semantic Release for API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd api
+          npx semantic-release
+
+      # For App version update
+      - name: Semantic Release for App
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd app
+          npx semantic-release
+
+  create-release:
+    name: Create GitHub Release
+    needs: semantic-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
           ref: main
+          fetch-depth: 0
 
       - name: Get the SHA of the latest commit
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-      # - name: Get version from package.json
-      #   id: package_version
-      #   run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      - name: Get API version
+        id: api_version
+        run: |
+          cd api
+          # Assuming version is stored in a file like version.txt after semantic-release run
+          # Adjust this based on where semantic-release saves your version
+          if [ -f "version.txt" ]; then
+            echo "version=$(cat version.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "version=0.0.0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get App version
+        id: app_version
+        run: |
+          cd app
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Set current date
         id: date
-          # Create the release body
-          RELEASE_BODY="## YnovBank API v${{ steps.package_version.outputs.version }}
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
-          Release Date: ${{ steps.date.outputs.date }}
-
-          ### What's New
-          ${{ steps.get_commits.outputs.commits }}
-
-          Commit messages:
-          ${{ github.event.head_commit.message }}"
-          fi
+      - name: Get recent commits
+        id: get_commits
+        run: |
+          COMMITS=$(git log -5 --pretty=format:"* %s (%h)" --no-merges)
           echo "commits<<EOF" >> $GITHUB_OUTPUT
           echo "$COMMITS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -66,8 +121,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create the release body
-          RELEASE_BODY="## FindPets API v${{ steps.package_version.outputs.version }}
+          RELEASE_BODY="## YnovBank Release
 
+          API Version: v${{ steps.api_version.outputs.version }}
+          App Version: v${{ steps.app_version.outputs.version }}
           Release Date: ${{ steps.date.outputs.date }}
 
           ### What's New
@@ -79,7 +136,7 @@ jobs:
           # Create the release with GitHub CLI
           echo "$RELEASE_BODY" > release_notes.md
 
-          # Create the release with GitHub CLI using the file
-          gh release create "v${{ steps.package_version.outputs.version }}" \
-            --title "Release v${{ steps.package_version.outputs.version }} - ${{ steps.date.outputs.date }}" \
+          # Create the release using the App version (you can adjust this strategy)
+          gh release create "v${{ steps.app_version.outputs.version }}" \
+            --title "Release v${{ steps.app_version.outputs.version }} - ${{ steps.date.outputs.date }}" \
             --notes-file release_notes.md
