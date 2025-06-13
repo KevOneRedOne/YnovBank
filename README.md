@@ -1,15 +1,17 @@
 # YnovBank
 
 ## Description du projet
-YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se connecter et d'effectuer des virements. Ce projet est développé avec une pipeline CI/CD automatisée sur GitLab, en utilisant Gitflow pour la gestion des branches et semantic-release pour le versionnement.
+YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se connecter et d'effectuer des virements. Ce projet est développé avec une pipeline CI/CD automatisée sur GitHub Actions, en utilisant Gitflow pour la gestion des branches et semantic-release pour le versionnement.
 
 ## Spécifications techniques
 
 ### Stack technique
-- **Backend** : Node.js/Express (API REST)
-- **Frontend** : HTML/CSS/JavaScript statique
+- **Backend** : Go/Gin (API REST)
+- **Frontend** : Nuxt.js avec TypeScript
 - **Base de données** : SQLite
-- **Tests** : Jest pour tests unitaires et d'intégration
+- **Tests** : 
+  - Backend : Tests natifs Go
+  - Frontend : Jest pour tests unitaires et d'intégration
 
 ### DevOps
 - **Workflow Git** : GitFlow avec protection des branches main et develop
@@ -43,7 +45,7 @@ YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se co
 ## Contenu du rapport
 - Contexte
 - CI/CD
-- Contenu du fichier .gitlab-ci.yaml
+- Contenu du fichier .ci.yaml
 - Lien vers repo Git public
 - Documentation du projet (Code, Dockerfile, Explications)
 
