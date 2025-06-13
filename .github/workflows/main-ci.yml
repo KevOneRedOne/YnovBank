@@ -2,8 +2,84 @@ name: Build, Test and Deploy - Main Branch
 
 on:
   push:
-    branches: main
+    branches: [main]
   pull_request:
-    branches: main
+    branches: [main]
 
 jobs:
+  # build-and-push:
+  #   name: Build and Push Docker Image
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+      
+  #     # Add your build steps here
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
+          
+  #     - name: Install dependencies
+  #     - name: Get version from package.json
+  #       id: package_version
+  #       run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+  #       run: npm run build
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Get the SHA of the latest commit
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      # - name: Get version from package.json
+      #   id: package_version
+      #   run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Set current date
+        id: date
+          # Create the release body
+          RELEASE_BODY="## YnovBank API v${{ steps.package_version.outputs.version }}
+
+          Release Date: ${{ steps.date.outputs.date }}
+
+          ### What's New
+          ${{ steps.get_commits.outputs.commits }}
+
+          Commit messages:
+          ${{ github.event.head_commit.message }}"
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create the release body
+          RELEASE_BODY="## FindPets API v${{ steps.package_version.outputs.version }}
+
+          Release Date: ${{ steps.date.outputs.date }}
+
+          ### What's New
+          ${{ steps.get_commits.outputs.commits }}
+
+          Commit messages:
+          ${{ github.event.head_commit.message }}"
+
+          # Create the release with GitHub CLI
+          echo "$RELEASE_BODY" > release_notes.md
+
+          # Create the release with GitHub CLI using the file
+          gh release create "v${{ steps.package_version.outputs.version }}" \
+            --title "Release v${{ steps.package_version.outputs.version }} - ${{ steps.date.outputs.date }}" \
+            --notes-file release_notes.md
