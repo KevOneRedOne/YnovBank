@@ -57,24 +57,28 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+          
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
-
-      - name: Install semantic-release and plugins
+          node-version: '18'
+          
+      # Installation des plugins semantic-release pour l'application Nuxt
+      - name: Install semantic-release and plugins for App
         run: |
           npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
-
-      # Pour l'API - en mode dry-run pour ne pas créer de version réelle
+      
+      # Pour l'API Go - utilisation de go-semantic-release/action
       - name: Semantic Release Dry Run for API
+        uses: go-semantic-release/action@v1
+        with:
+          bin: ./semantic-release
+          dry: true
+          prerelease: true
+          working-directory: ./api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd api
-          npx semantic-release --dry-run
-
+      
       # Pour l'App - en mode dry-run pour ne pas créer de version réelle
       - name: Semantic Release Dry Run for App
         env:

@@ -56,19 +56,21 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install semantic-release and plugins
+      # Installation des plugins semantic-release pour l'application Nuxt
+      - name: Install semantic-release and plugins for App
         run: |
           npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
 
-      # For API version update
+      # Pour l'API Go - utilisation de go-semantic-release/action
       - name: Semantic Release for API
+        uses: go-semantic-release/action@v1
+        with:
+          bin: ./semantic-release
+          working-directory: ./api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd api
-          npx semantic-release
 
-      # For App version update
+      # Pour l'App version update
       - name: Semantic Release for App
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -94,14 +96,12 @@ jobs:
       - name: Get API version
         id: api_version
         run: |
-          cd api
-          # Assuming version is stored in a file like version.txt after semantic-release run
-          # Adjust this based on where semantic-release saves your version
-          if [ -f "version.txt" ]; then
-            echo "version=$(cat version.txt)" >> $GITHUB_OUTPUT
-          else
-            echo "version=0.0.0" >> $GITHUB_OUTPUT
+          # Récupérer la dernière version de l'API à partir des tags générés par go-semantic-release
+          API_VERSION=$(git tag --list "v*" --sort=-v:refname | grep -v '.*-.*' | head -n 1 | sed 's/^v//')
+          if [ -z "$API_VERSION" ]; then
+            API_VERSION="0.0.0"
           fi
+          echo "version=$API_VERSION" >> $GITHUB_OUTPUT
 
       - name: Get App version
         id: app_version
