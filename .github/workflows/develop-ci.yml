@@ -3,8 +3,16 @@ name: Build, Test and Deploy - Develop Branch
 on:
   push:
     branches: [develop]
+    paths-ignore:
+      - '**/version.go'
+      - '**/package.json'
+      - '**/package-lock.json'
   pull_request:
     branches: [develop]
+    paths-ignore:
+      - '**/version.go'
+      - '**/package.json'
+      - '**/package-lock.json'
 
 jobs:
   build-and-push:
@@ -101,8 +109,8 @@ jobs:
           git commit -m "chore: increment version numbers" || echo "No changes to commit"
           git push
 
-  semantic-release-dry-run:
-    name: Semantic Release Dry Run
+  semantic-release:
+    name: Semantic Release
     needs: build-and-push
     runs-on: ubuntu-latest
     permissions:
@@ -116,44 +124,41 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.TOKEN_GITHUB }}
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
           registry-url: 'https://npm.pkg.github.com'
           scope: '@kevoneredone'
-          
-      # Installation des plugins semantic-release pour l'application Nuxt
-      - name: Install semantic-release and plugins for App
-        run: |
-          npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
-      
-      # Pour l'API Go - utilisation de go-semantic-release/action
-      - name: Semantic Release Dry Run for API
+
+      - name: Semantic Release for API
         uses: go-semantic-release/action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
           GITHUB_WORKING_DIR: ./api
         with:
           github-token: ${{ secrets.TOKEN_GITHUB }}
-          dry: true
-          prerelease: true
+          allow-initial-development-versions: true
           changelog-file: api/CHANGELOG.md
           version-file: true
-      
-      # Pour l'App - en mode dry-run pour ne pas créer de version réelle
-      - name: Semantic Release Dry Run for App
+
+      - name: Install semantic-release and plugins for App
+        run: |
+          npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+
+      - name: Semantic Release for App
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           cd app
-          npx semantic-release --dry-run
+          npx semantic-release
 
-  create-preview:
-    name: Create Preview Summary
-    needs: semantic-release-dry-run
+  create-release:
+    name: Create GitHub Release
+    needs: semantic-release
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     permissions:
       contents: write
     steps:
@@ -168,7 +173,16 @@ jobs:
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Get App current version
+      - name: Get API version
+        id: api_version
+        run: |
+          API_VERSION=$(git tag --list "v*" --sort=-v:refname | grep -v '.*-.*' | head -n 1 | sed 's/^v//')
+          if [ -z "$API_VERSION" ]; then
+            API_VERSION="0.0.0"
+          fi
+          echo "version=$API_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get App version
         id: app_version
         run: |
           cd app
@@ -186,55 +200,82 @@ jobs:
           echo "$COMMITS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Create Preview Summary
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
-          # Créer un résumé de prévisualisation
-          PREVIEW_SUMMARY="## YnovBank Develop Preview
+          RELEASE_TAG="v${{ steps.app_version.outputs.version }}"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists, skipping..."
+            exit 0
+          fi
 
-          Current App Version: v${{ steps.app_version.outputs.version }}
-          Preview Date: ${{ steps.date.outputs.date }}
-          Branch: develop
-          Commit: ${{ steps.sha.outputs.sha }}
+          RELEASE_BODY="## YnovBank Release
 
-          ### Recent Changes
+          🚀 **API Version:** v${{ steps.api_version.outputs.version }}
+          📱 **App Version:** v${{ steps.app_version.outputs.version }}
+          📅 **Release Date:** ${{ steps.date.outputs.date }}
+
+          ### 📝 Recent Changes
           ${{ steps.get_commits.outputs.commits }}
 
-          Latest commit message:
-          ${{ github.event.head_commit.message }}"
+          ### 🔗 Links
+          - [API Documentation](./api/)
+          - [App Documentation](./app/)
 
-          echo "$PREVIEW_SUMMARY" > preview_summary.md
+          ---
+          **Full Changelog:** [Compare changes](https://github.com/${{ github.repository }}/compare/v${{ steps.api_version.outputs.version }}...v${{ steps.app_version.outputs.version }})"
 
-          # Afficher le résumé dans les logs
-          cat preview_summary.md
+          echo "$RELEASE_BODY" > release_notes.md
 
-          # Sauvegarder le résumé comme un artefact GitHub Actions
-          mkdir -p ./artifacts
-          cp preview_summary.md ./artifacts/
+          gh release create "$RELEASE_TAG" \
+            --title "🎉 YnovBank v${{ steps.app_version.outputs.version }}" \
+            --notes-file release_notes.md \
+            --generate-notes
 
-      - name: Upload Preview Summary
-        uses: actions/upload-artifact@v3
-        with:
-          name: preview-summary
-          path: artifacts/preview_summary.md
-
-  deploy-to-staging:
-    name: Deploy to Staging
-    needs: build-and-push
+  increment-versions:
+    name: Increment Versions
+    needs: create-release
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           token: ${{ secrets.TOKEN_GITHUB }}
 
-      # Simule un déploiement vers un environnement de staging
-      - name: Deploy to Staging Environment
+      - name: Configure Git
         run: |
-          echo "Déploiement vers l'environnement de staging..."
-          echo "Cette étape serait configurée pour déployer vers Render ou Fly.io"
-          # Ici vous ajouteriez les commandes réelles pour déployer vers votre environnement staging
+          git config --global user.name 'kevoneredone'
+          git config --global user.email 'kevinalves@hotmail.fr'
 
-      - name: Post Deployment Status
+      - name: Increment API version
         run: |
-          echo "Déploiement sur l'environnement de staging terminé avec succès"
-          echo "URL: https://staging-ynovbank.example.com"
+          cd api
+          # Lire la version actuelle
+          CURRENT_VERSION=$(grep -o 'Version = "[0-9]*\.[0-9]*\.[0-9]*"' version.go | cut -d'"' -f2)
+          # Incrémenter la version mineure
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$((minor + 1)).$patch"
+          # Mettre à jour le fichier version.go
+          sed -i "s/Version = \"$CURRENT_VERSION\"/Version = \"$NEW_VERSION\"/" version.go
+          echo "API version incremented to $NEW_VERSION"
+
+      - name: Increment App version
+        run: |
+          cd app
+          # Lire la version actuelle
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          # Incrémenter la version mineure
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$((minor + 1)).$patch"
+          # Mettre à jour package.json
+          npm version $NEW_VERSION --no-git-tag-version
+          echo "App version incremented to $NEW_VERSION"
+
+      - name: Commit version changes
+        run: |
+          git add .
+          git commit -m "chore: bump version numbers" || echo "No changes to commit"
+          git push

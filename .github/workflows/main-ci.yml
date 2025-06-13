@@ -3,8 +3,16 @@ name: Build, Test and Deploy - Main Branch
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/version.go'
+      - '**/package.json'
+      - '**/package-lock.json'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/version.go'
+      - '**/package.json'
+      - '**/package-lock.json'
 
 jobs:
   build-and-push:
@@ -232,5 +240,5 @@ jobs:
       - name: Commit version changes
         run: |
           git add .
-          git commit -m "chore: increment version numbers" || echo "No changes to commit"
+          git commit -m "chore: bump version numbers" || echo "No changes to commit"
           git push
