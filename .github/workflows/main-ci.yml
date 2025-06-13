@@ -16,6 +16,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v39
+        with:
+          files: |
+            app/**
+            api/**
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -55,6 +63,41 @@ jobs:
         run: |
           cd app
           npm run build
+
+      - name: Increment API version
+        if: steps.changed-files.outputs.any_changed == 'true' && contains(steps.changed-files.outputs.all_changed_files, 'api/')
+        run: |
+          cd api
+          # Lire la version actuelle
+          CURRENT_VERSION=$(grep -o 'Version = "[0-9]*\.[0-9]*\.[0-9]*"' version.go | cut -d'"' -f2)
+          # Incrémenter la version mineure
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$((minor + 1)).$patch"
+          # Mettre à jour le fichier version.go
+          sed -i "s/Version = \"$CURRENT_VERSION\"/Version = \"$NEW_VERSION\"/" version.go
+          echo "API version incremented to $NEW_VERSION"
+
+      - name: Increment App version
+        if: steps.changed-files.outputs.any_changed == 'true' && contains(steps.changed-files.outputs.all_changed_files, 'app/')
+        run: |
+          cd app
+          # Lire la version actuelle
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          # Incrémenter la version mineure
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$((minor + 1)).$patch"
+          # Mettre à jour package.json
+          npm version $NEW_VERSION --no-git-tag-version
+          echo "App version incremented to $NEW_VERSION"
+
+      - name: Commit version changes
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "chore: increment version numbers" || echo "No changes to commit"
+          git push
 
   semantic-release:
     name: Semantic Release
