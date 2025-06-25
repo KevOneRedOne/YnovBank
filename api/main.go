@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "api/docs" // <-- important !   (le _ permet d’initialiser le package)
+	_ "api/docs" // <-- important !   (le _ permet d'initialiser le package)
 	"api/models"
 	"api/routes"
 	"github.com/gin-gonic/gin"
@@ -10,6 +10,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
 
 func main() {
 	// Initialisation de la base de données
@@ -21,9 +22,9 @@ func main() {
 
 	r := gin.Default()
 
-	// Ajoute la route Swagger UI
+	// // Ajoute la route Swagger UI
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	routes.SetupRoutes(r, db)
-	r.Run(":8080")
+	routes.SetupRoutes(r)
+	r.Run(":3000")
 }

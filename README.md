@@ -1,7 +1,7 @@
-# YnovBank
+# api
 
 ## Description du projet
-YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se connecter et d'effectuer des virements. Ce projet est développé avec une pipeline CI/CD automatisée sur GitLab, en utilisant Gitflow pour la gestion des branches et semantic-release pour le versionnement.
+api est une plateforme bancaire simple permettant aux utilisateurs de se connecter et d'effectuer des virements. Ce projet est développé avec une pipeline CI/CD automatisée sur GitLab, en utilisant Gitflow pour la gestion des branches et semantic-release pour le versionnement.
 
 ## Spécifications techniques
 
@@ -35,6 +35,11 @@ YnovBank est une plateforme bancaire simple permettant aux utilisateurs de se co
 - Documentation du projet (Code, Dockerfile, Explications)
 
 # API
+## générer le swagger
+Installe swag (utilisé uniquement au build)
+go install github.com/swaggo/swag/cmd/swag@latest
+go mod download
+swag init
 ## lancer l'api en dev 
 go run main.go
 ## Faire un build (sur windows) : 
