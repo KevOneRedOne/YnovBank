@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
     '@nuxtjs/i18n',
-    '@nuxtjs/color-mode'
+    '@nuxtjs/color-mode',
   ],
   app: {
     head: {
@@ -14,30 +14,28 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Modern banking platform' }
+        { name: 'description', content: 'Modern banking platform' },
       ],
-      link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-      ]
-    }
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    },
   },
   colorMode: {
-    classSuffix: ''
+    classSuffix: '',
   },
   i18n: {
     locales: [
       { code: 'fr', file: 'fr.json', name: 'Français' },
-      { code: 'en', file: 'en.json', name: 'English' }
+      { code: 'en', file: 'en.json', name: 'English' },
     ],
     defaultLocale: 'fr',
     strategy: 'prefix_except_default',
     lazy: true,
     langDir: 'locales/',
-    vueI18n: './i18n.config.ts'
+    vueI18n: './i18n.config.ts',
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.API_BASE || 'http://localhost:8080'
-    }
-  }
-})
+      apiBase: process.env.API_BASE || 'http://localhost:8080',
+    },
+  },
+});

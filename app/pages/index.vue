@@ -29,12 +29,17 @@
           {{ $t('home.features.title') }}
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div v-for="feature in features" :key="feature.title" 
-               class="p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow">
+          <div
+            v-for="feature in features"
+            :key="feature.title"
+            class="p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow"
+          >
             <div class="text-blue-600 mb-4">
               <Icon :name="feature.icon" class="w-12 h-12" />
             </div>
-            <h3 class="text-xl font-semibold mb-2 dark:text-white">{{ feature.title }}</h3>
+            <h3 class="text-xl font-semibold mb-2 dark:text-white">
+              {{ feature.title }}
+            </h3>
             <p class="text-gray-600 dark:text-gray-400">{{ feature.description }}</p>
           </div>
         </div>
@@ -48,14 +53,23 @@
           {{ $t('home.testimonials.title') }}
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div v-for="testimonial in testimonials" :key="testimonial.name"
-               class="p-6 rounded-lg bg-white dark:bg-gray-800 shadow">
-            <p class="text-gray-600 dark:text-gray-400 mb-4">{{ testimonial.content }}</p>
+          <div
+            v-for="testimonial in testimonials"
+            :key="testimonial.name"
+            class="p-6 rounded-lg bg-white dark:bg-gray-800 shadow"
+          >
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              {{ testimonial.content }}
+            </p>
             <div class="flex items-center">
               <div class="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700"></div>
               <div class="ml-4">
-                <h4 class="font-semibold dark:text-white">{{ testimonial.name }}</h4>
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{ testimonial.role }}</p>
+                <h4 class="font-semibold dark:text-white">
+                  {{ testimonial.name }}
+                </h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ testimonial.role }}
+                </p>
               </div>
             </div>
           </div>
@@ -66,39 +80,39 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 const features = [
   {
     icon: 'ph:shield-check-bold',
     title: t('home.features.secureBanking'),
-    description: t('home.features.secureBankingDesc')
+    description: t('home.features.secureBankingDesc'),
   },
   {
     icon: 'ph:chart-line-up-bold',
     title: t('home.features.smartInvestments'),
-    description: t('home.features.smartInvestmentsDesc')
+    description: t('home.features.smartInvestmentsDesc'),
   },
   {
     icon: 'ph:device-mobile-bold',
     title: t('home.features.mobileBanking'),
-    description: t('home.features.mobileBankingDesc')
-  }
-]
+    description: t('home.features.mobileBankingDesc'),
+  },
+];
 
 const testimonials = [
   {
     content: t('home.testimonials.testimonial1.content'),
     name: t('home.testimonials.testimonial1.name'),
-    role: t('home.testimonials.testimonial1.role')
+    role: t('home.testimonials.testimonial1.role'),
   },
   {
     content: t('home.testimonials.testimonial2.content'),
     name: t('home.testimonials.testimonial2.name'),
-    role: t('home.testimonials.testimonial2.role')
-  }
-]
+    role: t('home.testimonials.testimonial2.role'),
+  },
+];
 </script>
 
 <style scoped>
@@ -109,4 +123,4 @@ const testimonials = [
 .btn-secondary {
   @apply border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors;
 }
-</style> 
+</style>

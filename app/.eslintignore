@@ -1,0 +1,16 @@
+# Nuxt build output directory
+.nuxt
+dist
+
+# Node modules
+node_modules
+
+# System files
+.DS_Store
+
+# Cache directories
+.cache
+.output
+
+# Other files
+*.min.js

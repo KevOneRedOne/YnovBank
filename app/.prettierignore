@@ -1,0 +1,18 @@
+# Nuxt build output directory
+.nuxt
+dist
+
+# Node modules
+node_modules
+
+# Logs
+*.log
+
+# Cache directories
+.cache
+.output
+
+# Other files
+*.min.js
+package-lock.json
+yarn.lock
