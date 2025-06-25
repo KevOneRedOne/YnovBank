@@ -111,18 +111,16 @@ jobs:
         uses: go-semantic-release/action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-          GITHUB_WORKING_DIR: ./api
         with:
           github-token: ${{ secrets.TOKEN_GITHUB }}
           allow-initial-development-versions: true
           changelog-file: api/CHANGELOG.md
           update-file: api/version.txt
-          # Use custom flag config
-          custom-arguments: "--release-branch develop"
+          prerelease: true
 
-      - name: Install semantic-release and plugins for App
+      - name: Install version management tools for node packages
         run: |
-          npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+          npm install -g semver
 
       - name: Semantic Release for API Express
         env:
@@ -130,27 +128,12 @@ jobs:
         run: |
           if [ -f api-express/package.json ]; then
             cd api-express
-            # Create custom releaserc explicitly for develop branch
-            echo '{
-              "branches": [{"name": "develop", "prerelease": true}],
-              "plugins": [
-                "@semantic-release/commit-analyzer",
-                "@semantic-release/release-notes-generator", 
-                "@semantic-release/changelog",
-                ["@semantic-release/git", {
-                  "assets": ["package.json", "CHANGELOG.md"],
-                  "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-                }],
-                "@semantic-release/github"
-              ]
-            }' > .releaserc.json
             
             # Get current version
             CURRENT_VERSION=$(node -p "require('./package.json').version")
+            echo "Current API Express version: $CURRENT_VERSION"
             
-            # Run semantic release with custom config
-            npx semantic-release --no-ci || echo "Semantic release failed but continuing workflow"
-            
+            # Skip semantic release on develop and just do a manual version bump
             # For develop branch, use prerelease tag
             if [[ $CURRENT_VERSION == *"-dev"* ]]; then
               npm version prerelease --preid=dev --no-git-tag-version || echo "Version bump failed but continuing workflow"
@@ -168,23 +151,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           cd app
-          # Create custom releaserc explicitly for develop branch
-          echo '{
-            "branches": [{"name": "develop", "prerelease": true}],
-            "plugins": [
-              "@semantic-release/commit-analyzer",
-              "@semantic-release/release-notes-generator", 
-              "@semantic-release/changelog",
-              ["@semantic-release/git", {
-                "assets": ["package.json", "CHANGELOG.md"],
-                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-              }],
-              "@semantic-release/github"
-            ]
-          }' > .releaserc.json
           
-          # Run semantic release with custom config
-          npx semantic-release --no-ci || echo "Semantic release failed but continuing workflow"
+          # Get current version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current App version: $CURRENT_VERSION"
+          
+          # Skip semantic release on develop and just do a manual version bump
+          # For develop branch, use prerelease tag
+          if [[ $CURRENT_VERSION == *"-dev"* ]]; then
+            npm version prerelease --preid=dev --no-git-tag-version || echo "Version bump failed but continuing workflow"
+          else
+            npm version prepatch --preid=dev --no-git-tag-version || echo "Version bump failed but continuing workflow"
+          fi
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "App version: $CURRENT_VERSION → $NEW_VERSION"
 
   docker-images:
     name: Build and Push Docker Images
