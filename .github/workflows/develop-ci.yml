@@ -196,6 +196,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          
+      - name: Verify Docker Hub authentication
+        run: |
+          echo "Logged in as ${{ secrets.DOCKER_USERNAME }}"
+          # Check if repository exists or create it
+          echo "Checking access to Docker Hub repositories..."
+          echo "Note: If this is the first time pushing, you may need to manually create the repositories in Docker Hub"
 
       - name: Get App version
         id: app_version
@@ -219,10 +226,10 @@ jobs:
           context: ./app
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-app:latest
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-app:${{ steps.app_version.outputs.version }}
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-app:develop
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank-app:latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:app-latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:app-${{ steps.app_version.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:app-develop
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:app-latest
           cache-to: type=inline
 
       # Build and push Golang API Docker image
@@ -232,10 +239,10 @@ jobs:
           context: ./api
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-api:latest
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-api:${{ steps.api_version.outputs.version }}
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-api:develop
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank-api:latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:api-latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:api-${{ steps.api_version.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:api-develop
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:api-latest
           cache-to: type=inline
 
       # Build and push Express API Docker image
@@ -245,10 +252,10 @@ jobs:
           context: ./api-express
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-api-express:latest
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-api-express:${{ steps.app_version.outputs.version }}
-            ${{ secrets.DOCKER_USERNAME }}/ynovbank-api-express:develop
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank-api-express:latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:express-latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:express-${{ steps.app_version.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:express-develop
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:express-latest
           cache-to: type=inline
 
   create-release:
