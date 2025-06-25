@@ -21,6 +21,9 @@ FROM base AS builder
 # Installer toutes les dépendances (dev + prod)
 RUN npm ci --only=production=false
 
+# Copier les fichiers source
+COPY src/ ./src/
+
 # Générer le client Prisma
 RUN npx prisma generate
 
