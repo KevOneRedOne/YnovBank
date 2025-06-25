@@ -19,9 +19,12 @@ COPY prisma ./prisma/
 FROM base AS builder
 
 # Installer toutes les dépendances (dev + prod)
-RUN npm ci --only=production=false
+RUN npm ci
 
-# Copier les fichiers source (s'ils existent)
+# S'assurer que le répertoire src existe avant de le copier
+COPY src ./src
+
+# Copier le reste des fichiers
 COPY . .
 
 # Générer le client Prisma
