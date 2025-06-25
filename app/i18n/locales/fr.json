@@ -1,0 +1,101 @@
+{
+  "home": {
+    "hero": {
+      "title": "Bienvenue chez YnovBank",
+      "subtitle": "Votre banque moderne et sécurisée pour une gestion financière simplifiée",
+      "getStarted": "Commencer",
+      "learnMore": "En savoir plus"
+    },
+    "features": {
+      "title": "Nos Services",
+      "secureBanking": "Banque sécurisée",
+      "secureBankingDesc": "Des mesures de sécurité de pointe pour protéger vos avoirs",
+      "smartInvestments": "Investissements intelligents",
+      "smartInvestmentsDesc": "Des outils avancés pour prendre des décisions d'investissement éclairées",
+      "mobileBanking": "Banque mobile",
+      "mobileBankingDesc": "Gérez vos finances partout, à tout moment avec notre application mobile"
+    },
+    "testimonials": {
+      "title": "Témoignages",
+      "testimonial1": {
+        "content": "YnovBank a transformé ma gestion financière. L'interface est intuitive et le service excellent.",
+        "name": "Jean Dupont",
+        "role": "Chef d'entreprise"
+      },
+      "testimonial2": {
+        "content": "La meilleure expérience bancaire que j'ai eue. Tout est simple et efficace.",
+        "name": "Marie Martin",
+        "role": "Ingénieure logicielle"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenue sur votre tableau de bord",
+    "totalBalance": "Solde Total",
+    "income": "Revenus",
+    "expenses": "Dépenses",
+    "quickActions": {
+      "transfer": "Virement",
+      "payBills": "Payer des factures",
+      "invest": "Investir",
+      "support": "Support"
+    },
+    "recentTransactions": "Transactions Récentes",
+    "viewAll": "Voir tout",
+    "accountActivity": "Activité du Compte",
+    "transaction": {
+      "date": "Date",
+      "description": "Description",
+      "amount": "Montant",
+      "status": {
+        "completed": "terminé",
+        "pending": "en attente"
+      },
+      "salaryDeposit": "Versement de salaire",
+      "groceryStore": "Supermarché",
+      "electricBill": "Facture d'électricité"
+    }
+  },
+  "footer": {
+    "description": "YnovBank - Votre partenaire financier de confiance",
+    "quickLinks": "Liens Rapides",
+    "about": "À propos",
+    "contact": "Contact",
+    "privacy": "Confidentialité",
+    "rights": "Tous droits réservés"
+  },
+  "profile": {
+    "title": "Profil",
+    "memberSince": "Membre depuis",
+    "editProfile": "Modifier le profil",
+    "personalInfo": {
+      "title": "Informations personnelles",
+      "name": "Nom",
+      "email": "Email",
+      "phone": "Téléphone"
+    },
+    "security": {
+      "title": "Sécurité",
+      "password": "Mot de passe",
+      "changePassword": "Changer le mot de passe",
+      "2fa": "Authentification à deux facteurs",
+      "enable2fa": "Activer la 2FA"
+    }
+  },
+  "header": {
+    "dashboard": "Tableau de bord",
+    "transactions": "Transactions",
+    "profile": "Profil"
+  },
+  "login": {
+    "title": "Connexion à YnovBank",
+    "subtitle": "Connectez-vous à votre compte pour accéder à votre espace personnel.",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPassword": "Mot de passe oublié ?",
+    "signIn": "Se connecter",
+    "noAccount": "Pas encore de compte ?",
+    "register": "Créer un compte"
+  }
+}

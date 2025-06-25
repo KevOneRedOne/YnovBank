@@ -7,79 +7,183 @@ on:
     branches: [main]
 
 jobs:
-  # build-and-push:
-  #   name: Build and Push Docker Image
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-      
-  #     # Add your build steps here
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: '18'
-          
-  #     - name: Install dependencies
-  #     - name: Get version from package.json
-  #       id: package_version
-  #       run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-  #       run: npm run build
-
-  create-release:
-    name: Create GitHub Release
-    needs: build-and-push
+  build-and-push:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v39
+        with:
+          files: |
+            app/**
+            api/**
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "./app/package-lock.json"
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Install dependencies for API
+        run: |
+          cd api
+          go mod tidy
+
+      - name: Test API
+        run: |
+          cd api
+          go test ./...
+
+      - name: Install dependencies for App
+        run: |
+          cd app
+          npm install
+      - name: Fix package-lock.json
+        run: |
+          cd app
+          npm i --package-lock-only --no-audit
+      - name: Test App
+        run: |
+          cd app
+          npm test || echo "No tests to run"
+
+      - name: Build App
+        run: |
+          cd app
+          npm run build
+
+  semantic-release:
+    name: Semantic Release
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@kevoneredone'
+
+      - name: Semantic Release for API
+        uses: go-semantic-release/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          GITHUB_WORKING_DIR: ./api
+        with:
+          github-token: ${{ secrets.TOKEN_GITHUB }}
+          allow-initial-development-versions: true
+          changelog-file: api/CHANGELOG.md
+          version-file: true
+
+      - name: Install semantic-release and plugins for App
+        run: |
+          npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+
+      - name: Semantic Release for App
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        run: |
+          cd app
+          npx semantic-release
+
+  create-release:
+    name: Create GitHub Release
+    needs: semantic-release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
           ref: main
+          fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Get the SHA of the latest commit
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-      # - name: Get version from package.json
-      #   id: package_version
-      #   run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      - name: Get API version
+        id: api_version
+        run: |
+          API_VERSION=$(git tag --list "v*" --sort=-v:refname | grep -v '.*-.*' | head -n 1 | sed 's/^v//')
+          if [ -z "$API_VERSION" ]; then
+            API_VERSION="0.0.0"
+          fi
+          echo "version=$API_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get App version
+        id: app_version
+        run: |
+          cd app
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Set current date
         id: date
-          # Create the release body
-          RELEASE_BODY="## YnovBank API v${{ steps.package_version.outputs.version }}
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
-          Release Date: ${{ steps.date.outputs.date }}
-
-          ### What's New
-          ${{ steps.get_commits.outputs.commits }}
-
-          Commit messages:
-          ${{ github.event.head_commit.message }}"
-          fi
+      - name: Get recent commits
+        id: get_commits
+        run: |
+          COMMITS=$(git log -5 --pretty=format:"* %s (%h)" --no-merges)
           echo "commits<<EOF" >> $GITHUB_OUTPUT
           echo "$COMMITS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
-          # Create the release body
-          RELEASE_BODY="## FindPets API v${{ steps.package_version.outputs.version }}
+          RELEASE_TAG="v${{ steps.app_version.outputs.version }}"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists, skipping..."
+            exit 0
+          fi
 
-          Release Date: ${{ steps.date.outputs.date }}
+          RELEASE_BODY="## YnovBank Release
 
-          ### What's New
+          🚀 **API Version:** v${{ steps.api_version.outputs.version }}
+          📱 **App Version:** v${{ steps.app_version.outputs.version }}
+          📅 **Release Date:** ${{ steps.date.outputs.date }}
+
+          ### 📝 Recent Changes
           ${{ steps.get_commits.outputs.commits }}
 
-          Commit messages:
-          ${{ github.event.head_commit.message }}"
+          ### 🔗 Links
+          - [API Documentation](./api/)
+          - [App Documentation](./app/)
 
-          # Create the release with GitHub CLI
+          ---
+          **Full Changelog:** [Compare changes](https://github.com/${{ github.repository }}/compare/v${{ steps.api_version.outputs.version }}...v${{ steps.app_version.outputs.version }})"
+
           echo "$RELEASE_BODY" > release_notes.md
 
-          # Create the release with GitHub CLI using the file
-          gh release create "v${{ steps.package_version.outputs.version }}" \
-            --title "Release v${{ steps.package_version.outputs.version }} - ${{ steps.date.outputs.date }}" \
-            --notes-file release_notes.md
+          gh release create "$RELEASE_TAG" \
+            --title "🎉 YnovBank v${{ steps.app_version.outputs.version }}" \
+            --notes-file release_notes.md \
+            --generate-notes

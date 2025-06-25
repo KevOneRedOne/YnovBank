@@ -1,56 +1,111 @@
-# api
+# YnovBank
 
-## Description du projet
-api est une plateforme bancaire simple permettant aux utilisateurs de se connecter et d'effectuer des virements. Ce projet est développé avec une pipeline CI/CD automatisée sur GitLab, en utilisant Gitflow pour la gestion des branches et semantic-release pour le versionnement.
+## Project Description
+YnovBank is a fictional banking platform developed as part of a Master's Degree 2 learning unit. This project demonstrates the implementation of a modern banking system allowing users to connect and perform transfers. The project is developed with an automated CI/CD pipeline using GitHub Actions, implementing Gitflow for branch management and semantic-release for versioning.
 
-## Spécifications techniques
+## Technical Specifications
 
-### Stack technique
-- **Backend** : Node.js/Express (API REST)
-- **Frontend** : HTML/CSS/JavaScript statique
-- **Base de données** : SQLite
-- **Tests** : Jest pour tests unitaires et d'intégration
+### Tech Stack
+- **Backend**: Go/Gin (REST API)
+- **Frontend**: Nuxt.js with TypeScript
+- **Database**: SQLite
+- **Testing**:
+  - Backend: Native Go tests
+  - Frontend: Jest for unit and integration tests
 
 ### DevOps
-- **Workflow Git** : GitFlow avec règle de MR (minimum 2 personnes pour approuver une merge request)
-- **Conteneurisation** : Dockerfile
-- **Artifact** : Docker Hub ou GitLab Registry
-- **CI/CD** : GitLab CI avec stages build, test, artefact, release, deploy
-- **Versionnement** : semantic-release avec Conventional Commits
-- **Déploiement** :
-  - Staging (develop branch) : Render ou fly.io
-  - Production (master branch) : Render ou fly.io
-- **Notifications** : Emails envoyés à notif-cicd@joelkoussawo.me
+- **Git Workflow**: GitFlow with main and develop branch protection
+  - Mandatory pull requests for modifications
+  - Protected branches requiring approvals
+- **CI/CD**: GitHub Actions with the following workflows:
+  - **Build and Push**:
+    - Dependencies installation (Node.js and Go)
+    - Unit tests for API and application
+    - Application build
+  - **Semantic Release**:
+    - Automatic versioning for API and application
+    - Changelog generation
+    - Version tag creation
+  - **Create Release**:
+    - Automatic GitHub releases
+    - Release notes generation with recent changes
+- **Versioning**: semantic-release with Conventional Commits
+- **Deployment**:
+  - Staging (develop branch): Render or fly.io
+  - Production (master branch): Render or fly.io
+- **Notifications**: Emails sent to notif-cicd@joelkoussawo.me
 
-## Livrables
-- Lien vers le repo Git avec README complet présentant le projet
-- Démo (26 Juin)
-- Rapport (26 Juin) à envoyer à formation@joelkoussawo.me
+## Deliverables
+- Git repository link with complete README presenting the project
+- Demo (June 26th)
+- Report (June 26th) to be sent to formation@joelkoussawo.me
 
-## Contenu du rapport
-- Contexte
+## Report Content
+- Context
 - CI/CD
-- Contenu du fichier .gitlab-ci.yaml
-- Lien vers repo Git public
-- Documentation du projet (Code, Dockerfile, Explications)
+- GitHub Actions workflow files content
+- Public Git repository link
+- Project documentation (Code, Dockerfile, Explanations)
 
 # API
-## générer le swagger
-Installe swag (utilisé uniquement au build)
-go install github.com/swaggo/swag/cmd/swag@latest
-go mod download
-swag init
-## lancer l'api en dev 
+
+## Prerequisites
+- Go 1.21 or higher
+- Docker (optional)
+
+## Installation and Startup
+
+### Local Development
+```bash
+# Clone the repository
+git clone https://github.com/kevoneredone/YnovBank.git
+cd YnovBank/api
+
+# Install dependencies
+go mod tidy
+
+# Launch API in development mode
 go run main.go
-## Faire un build (sur windows) : 
+```
+
+### Production
+
+#### Native Build and Execution
+```bash
+# Build for Windows
 go build -o gin-api.exe
-## Lancer l'api en prod (sur windows) :
-./gin-api.exe
-## Faire un build (sur linux) : 
+
+# Build for Linux/MacOS
 go build -o gin-api
-## Lancer l'api en prod (sur linux)
+
+# Execution
+# Windows
+./gin-api.exe
+# Linux/MacOS
 ./gin-api
-## Lancer avec Docker 
+```
+
+#### Docker Usage
+```bash
+# Build Docker image
 docker build -t gin-api .
+
+# Run container
 docker run -p 8080:8080 gin-api
+```
+
+## Documentation
+API documentation is available in the `docs/` directory. It includes:
+- Available endpoints
+- Data models
+- Request examples
+
+## Tests
+```bash
+# Run all tests
+go test ./...
+
+# Run tests with coverage
+go test ./... -cover
+```
 

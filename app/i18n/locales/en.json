@@ -1,0 +1,101 @@
+{
+  "home": {
+    "hero": {
+      "title": "Welcome to YnovBank",
+      "subtitle": "Your modern and secure bank for simplified financial management",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "features": {
+      "title": "Our Services",
+      "secureBanking": "Secure Banking",
+      "secureBankingDesc": "State-of-the-art security measures to protect your assets",
+      "smartInvestments": "Smart Investments",
+      "smartInvestmentsDesc": "Advanced tools to help you make informed investment decisions",
+      "mobileBanking": "Mobile Banking",
+      "mobileBankingDesc": "Bank anywhere, anytime with our mobile app"
+    },
+    "testimonials": {
+      "title": "Testimonials",
+      "testimonial1": {
+        "content": "YnovBank has transformed how I manage my finances. The interface is intuitive and the service is excellent.",
+        "name": "Jean Dupont",
+        "role": "Business Owner"
+      },
+      "testimonial2": {
+        "content": "The best banking experience I've ever had. Everything is so simple and efficient.",
+        "name": "Marie Martin",
+        "role": "Software Engineer"
+      }
+    }
+  },
+  "header": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "profile": "Profile"
+  },
+  "login": {
+    "title": "Sign in to YnovBank",
+    "subtitle": "Sign in to your account to access your personal space.",
+    "email": "Email address",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "noAccount": "No account yet?",
+    "register": "Create an account"
+  },
+  "dashboard": {
+    "welcome": "Welcome to your dashboard",
+    "totalBalance": "Total Balance",
+    "income": "Income",
+    "expenses": "Expenses",
+    "quickActions": {
+      "transfer": "Transfer",
+      "payBills": "Pay Bills",
+      "invest": "Invest",
+      "support": "Support"
+    },
+    "recentTransactions": "Recent Transactions",
+    "viewAll": "View All",
+    "accountActivity": "Account Activity",
+    "transaction": {
+      "date": "Date",
+      "description": "Description",
+      "amount": "Amount",
+      "status": {
+        "completed": "completed",
+        "pending": "pending"
+      },
+      "salaryDeposit": "Salary Deposit",
+      "groceryStore": "Grocery Store",
+      "electricBill": "Electric Bill"
+    }
+  },
+  "footer": {
+    "description": "YnovBank - Your trusted financial partner",
+    "quickLinks": "Quick Links",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "rights": "All rights reserved"
+  },
+  "profile": {
+    "title": "Profile",
+    "memberSince": "Member since",
+    "editProfile": "Edit Profile",
+    "personalInfo": {
+      "title": "Personal Information",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "security": {
+      "title": "Security",
+      "password": "Password",
+      "changePassword": "Change password",
+      "2fa": "Two-factor authentication",
+      "enable2fa": "Enable 2FA"
+    }
+  }
+}
