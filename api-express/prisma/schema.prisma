@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  name        String?
+  phone       String?
+  address     String?
+  dateOfBirth DateTime?
+  isActive    Boolean  @default(true)
+  role        String   @default("CLIENT") // CLIENT, ADMIN, EMPLOYEE
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  accounts     Account[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Account {
+  id            Int      @id @default(autoincrement())
+  accountNumber String   @unique
+  accountType   String   @default("CHECKING") // CHECKING, SAVINGS, BUSINESS
+  balance       Decimal  @default(0)
+  isActive      Boolean  @default(true)
+  userId        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionsFrom    Transaction[] @relation("FromAccount")
+  transactionsTo      Transaction[] @relation("ToAccount")
+
+  @@map("accounts")
+}
+
+model Transaction {
+  id            Int      @id @default(autoincrement())
+  amount        Decimal
+  type          String   // DEPOSIT, WITHDRAWAL, TRANSFER, PAYMENT
+  status        String   @default("PENDING") // PENDING, COMPLETED, FAILED, CANCELLED
+  description   String?
+  reference     String   @unique @default(cuid())
+  fromAccountId Int?
+  toAccountId   Int?
+  userId        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  fromAccount Account? @relation("FromAccount", fields: [fromAccountId], references: [id])
+  toAccount   Account? @relation("ToAccount", fields: [toAccountId], references: [id])
+
+  @@map("transactions")
+}

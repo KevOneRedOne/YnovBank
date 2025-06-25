@@ -84,8 +84,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@kevoneredone'
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@kevoneredone"
 
       - name: Semantic Release for API
         uses: go-semantic-release/action@v1
@@ -96,22 +96,141 @@ jobs:
           github-token: ${{ secrets.TOKEN_GITHUB }}
           allow-initial-development-versions: true
           changelog-file: api/CHANGELOG.md
-          version-file: true
+          update-file: api/version.txt
 
-      - name: Install semantic-release and plugins for App
+      - name: Install version management tools for node packages
         run: |
-          npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+          npm install -g semver
+
+      - name: Semantic Release for API Express
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        run: |
+          if [ -f api-express/package.json ]; then
+            cd api-express
+            
+            # Get current version
+            CURRENT_VERSION=$(node -p "require('./package.json').version")
+            echo "Current API Express version: $CURRENT_VERSION"
+            
+            # Skip semantic release and just do a manual version bump
+            npm version patch --no-git-tag-version || echo "Version bump failed but continuing workflow"
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "API Express version: $CURRENT_VERSION → $NEW_VERSION"
+          else
+            echo "API Express package.json not found, skipping semantic release"
+          fi
 
       - name: Semantic Release for App
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           cd app
-          npx semantic-release
+          
+          # Get current version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current App version: $CURRENT_VERSION"
+          
+          # Skip semantic release and just do a manual version bump
+          npm version patch --no-git-tag-version || echo "Version bump failed but continuing workflow"
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "App version: $CURRENT_VERSION → $NEW_VERSION"
+
+  build-docker-images:
+    name: Build and Push Docker Images
+    needs: semantic-release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Fix DNS resolution issues
+      - name: Setup DNS
+        run: |
+          echo "Checking DNS resolution..."
+          cat /etc/resolv.conf
+          echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+          echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf
+          echo "Updated DNS servers:"
+          cat /etc/resolv.conf
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          
+      - name: Verify Docker Hub authentication
+        run: |
+          echo "Logged in as ${{ secrets.DOCKER_USERNAME }}"
+          # Check if repository exists or create it
+          echo "Checking access to Docker Hub repositories..."
+          echo "Note: If this is the first time pushing, you may need to manually create the repositories in Docker Hub"
+
+      - name: Get App version
+        id: app_version
+        run: |
+          cd app
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Get API version from version.txt
+        id: api_version
+        run: |
+          if [ -f api/version.txt ]; then
+            echo "version=$(cat api/version.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "version=0.0.1" >> $GITHUB_OUTPUT
+          fi
+
+      # Build and push React App Docker image
+      - name: Build and push App image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:app-latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:app-${{ steps.app_version.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:app-prod
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:app-latest
+          cache-to: type=inline
+
+      # Build and push Golang API Docker image
+      - name: Build and push Golang API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:api-latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:api-${{ steps.api_version.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:api-prod
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:api-latest
+          cache-to: type=inline
+
+      # Build and push Express API Docker image (if exists)
+      - name: Build and push Express API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api-express
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:express-latest
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:express-${{ steps.app_version.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/ynovbank:express-prod
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:express-latest
+          cache-to: type=inline
 
   create-release:
     name: Create GitHub Release
-    needs: semantic-release
+    needs: build-docker-images
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
@@ -131,9 +250,13 @@ jobs:
       - name: Get API version
         id: api_version
         run: |
-          API_VERSION=$(git tag --list "v*" --sort=-v:refname | grep -v '.*-.*' | head -n 1 | sed 's/^v//')
-          if [ -z "$API_VERSION" ]; then
-            API_VERSION="0.0.0"
+          if [ -f api/version.txt ]; then
+            API_VERSION=$(cat api/version.txt)
+          else
+            API_VERSION=$(git tag --list "v*" --sort=-v:refname | grep -v '.*-.*' | head -n 1 | sed 's/^v//')
+            if [ -z "$API_VERSION" ]; then
+              API_VERSION="0.0.0"
+            fi
           fi
           echo "version=$API_VERSION" >> $GITHUB_OUTPUT
 
@@ -187,3 +310,101 @@ jobs:
             --title "🎉 YnovBank v${{ steps.app_version.outputs.version }}" \
             --notes-file release_notes.md \
             --generate-notes
+          echo "Release $RELEASE_TAG created successfully."
+
+  bump-version:
+    name: Bump Version for Next Development Cycle
+    needs: create-release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Get current App version
+        id: current_app_version
+        run: |
+          cd app
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Get current API version
+        id: current_api_version
+        run: |
+          if [ -f api/version.txt ]; then
+            echo "version=$(cat api/version.txt)" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(git tag --list "v*" --sort=-v:refname | grep -v '.*-.*' | head -n 1 | sed 's/^v//')
+            if [ -z "$VERSION" ]; then
+              VERSION="0.0.0"
+            fi
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      # Bump React App version
+      - name: Bump App version
+        run: |
+          cd app
+          npm version patch --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "Bumped App version to $NEW_VERSION"
+
+      # Bump API Express version
+      - name: Bump API Express version
+        run: |
+          if [ -f api-express/package.json ]; then
+            cd api-express
+            npm version patch --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "Bumped API Express version to $NEW_VERSION"
+          else
+            echo "API Express package.json not found, skipping version bump"
+          fi
+
+      # Create a new version.txt for Go API with bumped version
+      - name: Bump Go API version
+        run: |
+          cd api
+          CURRENT_VERSION="${{ steps.current_api_version.outputs.version }}"
+
+          # Split the version into components
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
+
+          # Increment patch version
+          PATCH=$((VERSION_PARTS[2] + 1))
+
+          # Construct the new version
+          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
+
+          echo "$NEW_VERSION" > version.txt
+          echo "Bumped API version to $NEW_VERSION"
+
+      - name: Commit and push version bumps
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          git add app/package.json
+          git add api/version.txt
+
+          if [ -f api-express/package.json ]; then
+            git add api-express/package.json
+          fi
+
+          git commit -m "chore: bump versions for next development cycle [skip ci]"
+          git push
