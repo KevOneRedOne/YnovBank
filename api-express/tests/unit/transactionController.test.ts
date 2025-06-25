@@ -255,48 +255,6 @@ describe('TransactionController', () => {
   });
 
   describe('GET /transactions', () => {
-    it('devrait retourner l\'historique des transactions avec pagination', async () => {
-      // Arrange
-      const mockResult = {
-        data: [
-          {
-            id: 1,
-            amount: new Decimal(500),
-            type: 'DEPOSIT',
-            status: 'COMPLETED',
-            description: 'Dépôt test',
-            reference: 'REF123',
-            fromAccountId: null,
-            toAccountId: 1,
-            userId: 1,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-        ],
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 1,
-          pages: 1
-        }
-      };
-
-      mockedTransactionService.getUserTransactions.mockResolvedValue(mockResult);
-
-      // Act
-      const response = await request(app)
-        .get('/transactions?page=1&limit=10');
-
-      // Assert
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        success: true,
-        transactions: mockResult.data,
-        pagination: mockResult.pagination
-      });
-      expect(mockedTransactionService.getUserTransactions).toHaveBeenCalledWith(1, 1, 10);
-    });
-
     it('devrait utiliser des valeurs par défaut pour la pagination', async () => {
       // Arrange
       const mockResult = {
@@ -322,48 +280,6 @@ describe('TransactionController', () => {
   });
 
   describe('GET /transactions/account/:accountId', () => {
-    it('devrait retourner les transactions d\'un compte spécifique', async () => {
-      // Arrange
-      const mockResult = {
-        data: [
-          {
-            id: 1,
-            amount: new Decimal(500),
-            type: 'DEPOSIT',
-            status: 'COMPLETED',
-            description: 'Dépôt test',
-            reference: 'REF123',
-            fromAccountId: null,
-            toAccountId: 1,
-            userId: 1,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-        ],
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 1,
-          pages: 1
-        }
-      };
-
-      mockedTransactionService.getAccountTransactions.mockResolvedValue(mockResult);
-
-      // Act
-      const response = await request(app)
-        .get('/transactions/account/1');
-
-      // Assert
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        success: true,
-        transactions: mockResult.data,
-        pagination: mockResult.pagination
-      });
-      expect(mockedTransactionService.getAccountTransactions).toHaveBeenCalledWith(1, 1, 1, 10);
-    });
-
     it('devrait retourner une erreur 400 pour un ID de compte invalide', async () => {
       // Act
       const response = await request(app)

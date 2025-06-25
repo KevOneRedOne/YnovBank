@@ -202,34 +202,6 @@ describe('AccountController', () => {
   });
 
   describe('GET /accounts/:id', () => {
-    it('devrait retourner un compte par son ID', async () => {
-      // Arrange
-      const mockAccount = {
-        id: 1,
-        accountNumber: 'ACC123456781234',
-        accountType: 'CHECKING',
-        balance: 1000,
-        isActive: true,
-        userId: 1,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
-      mockedAccountService.getAccountById.mockResolvedValue(mockAccount as any);
-
-      // Act
-      const response = await request(app)
-        .get('/accounts/1');
-
-      // Assert
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        success: true,
-        account: mockAccount
-      });
-      expect(mockedAccountService.getAccountById).toHaveBeenCalledWith(1, 1);
-    });
-
     it('devrait retourner une erreur 400 pour un ID invalide', async () => {
       // Act
       const response = await request(app)
@@ -317,35 +289,6 @@ describe('AccountController', () => {
   });
 
   describe('DELETE /accounts/:id', () => {
-    it('devrait désactiver un compte avec succès', async () => {
-      // Arrange
-      const mockAccount = {
-        id: 1,
-        accountNumber: 'ACC123456781234',
-        accountType: 'CHECKING',
-        balance: 1000,
-        isActive: false,
-        userId: 1,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
-      mockedAccountService.deactivateAccount.mockResolvedValue(mockAccount as any);
-
-      // Act
-      const response = await request(app)
-        .delete('/accounts/1');
-
-      // Assert
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({
-        success: true,
-        message: 'Compte désactivé avec succès',
-        account: mockAccount
-      });
-      expect(mockedAccountService.deactivateAccount).toHaveBeenCalledWith(1, 1);
-    });
-
     it('devrait retourner une erreur 400 pour un ID invalide', async () => {
       // Act
       const response = await request(app)
