@@ -5,20 +5,30 @@
       <div class="flex items-start space-x-5">
         <div class="flex-shrink-0">
           <div class="relative">
-            <img class="h-16 w-16 rounded-full" src="https://via.placeholder.com/150" alt="Profile picture">
+            <img
+              class="h-16 w-16 rounded-full"
+              src="https://via.placeholder.com/150"
+              alt="Profile picture"
+            />
             <span class="absolute inset-0 shadow-inner rounded-full" aria-hidden="true"></span>
           </div>
         </div>
         <div class="pt-1.5">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $t('profile.title') }}</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ $t('profile.title') }}
+          </h1>
           <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
             {{ $t('profile.memberSince') }} {{ memberSince }}
           </p>
         </div>
       </div>
-      <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
-        <button type="button"
-                class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      <div
+        class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3"
+      >
+        <button
+          type="button"
+          class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           {{ $t('profile.editProfile') }}
         </button>
       </div>
@@ -76,8 +86,10 @@
                   {{ $t('profile.security.password') }}
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
-                  <button type="button"
-                          class="text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                  <button
+                    type="button"
+                    class="text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                  >
                     {{ $t('profile.security.changePassword') }}
                   </button>
                 </dd>
@@ -87,8 +99,10 @@
                   {{ $t('profile.security.2fa') }}
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-white sm:mt-0 sm:col-span-2">
-                  <button type="button"
-                          class="text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                  <button
+                    type="button"
+                    class="text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                  >
                     {{ $t('profile.security.enable2fa') }}
                   </button>
                 </dd>
@@ -102,5 +116,5 @@
 </template>
 
 <script setup lang="ts">
-const memberSince = new Date().toLocaleDateString()
-</script> 
+const memberSince = new Date().toLocaleDateString();
+</script>
