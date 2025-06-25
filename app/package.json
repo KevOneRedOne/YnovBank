@@ -1,7 +1,7 @@
 {
   "name": "ynov-bank",
   "private": true,
-  "version": "0.7.2-dev.0",
+  "version": "0.7.2",
   "type": "module",
   "scripts": {
     "build": "nuxt build",
