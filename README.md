@@ -1,4 +1,4 @@
-# YnovBank
+# YnovBank [![Build, Test and Deploy - Main Branch](https://github.com/KevOneRedOne/YnovBank/actions/workflows/main-ci.yml/badge.svg?branch=main)](https://github.com/KevOneRedOne/YnovBank/actions/workflows/main-ci.yml) [![Build, Test and Deploy - Develop Branch](https://github.com/KevOneRedOne/YnovBank/actions/workflows/develop-ci.yml/badge.svg?branch=develop)](https://github.com/KevOneRedOne/YnovBank/actions/workflows/develop-ci.yml)
 
 ## Project Description
 YnovBank is a fictional banking platform developed as part of a Master's Degree 2 learning unit. This project demonstrates the implementation of a modern banking system allowing users to connect and perform transfers. The project is developed with an automated CI/CD pipeline using GitHub Actions, implementing Gitflow for branch management and semantic-release for versioning.

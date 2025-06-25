@@ -108,13 +108,12 @@ jobs:
         run: |
           if [ -f api-express/package.json ]; then
             cd api-express
-            # Create .releaserc.json to disable npm publish
+            # Create .releaserc.json without npm plugin
             echo '{
               "plugins": [
                 "@semantic-release/commit-analyzer",
                 "@semantic-release/release-notes-generator",
                 "@semantic-release/changelog",
-                ["@semantic-release/npm", { "npmPublish": false }],
                 ["@semantic-release/git", {
                   "assets": ["package.json", "CHANGELOG.md"],
                   "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
@@ -122,6 +121,13 @@ jobs:
                 "@semantic-release/github"
               ]
             }' > .releaserc.json
+            # Manually bump version in package.json as we're not using npm plugin
+            NEXT_VERSION=$(npx semantic-release --dry-run | grep -oP "The next release version is \K[0-9]+\.[0-9]+\.[0-9]+" || echo "")
+            if [ ! -z "$NEXT_VERSION" ]; then
+              npm version $NEXT_VERSION --no-git-tag-version
+            else
+              echo "No version change needed"
+            fi
             npx semantic-release
           else
             echo "API Express package.json not found, skipping semantic release"
@@ -132,13 +138,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           cd app
-          # Create .releaserc.json to disable npm publish
+          # Create .releaserc.json without npm plugin
           echo '{
             "plugins": [
               "@semantic-release/commit-analyzer",
               "@semantic-release/release-notes-generator",
               "@semantic-release/changelog",
-              ["@semantic-release/npm", { "npmPublish": false }],
               ["@semantic-release/git", {
                 "assets": ["package.json", "CHANGELOG.md"],
                 "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
@@ -146,6 +151,13 @@ jobs:
               "@semantic-release/github"
             ]
           }' > .releaserc.json
+          # Manually bump version in package.json as we're not using npm plugin
+          NEXT_VERSION=$(npx semantic-release --dry-run | grep -oP "The next release version is \K[0-9]+\.[0-9]+\.[0-9]+" || echo "")
+          if [ ! -z "$NEXT_VERSION" ]; then
+            npm version $NEXT_VERSION --no-git-tag-version
+          else
+            echo "No version change needed"
+          fi
           npx semantic-release
 
   build-docker-images:
