@@ -23,8 +23,8 @@ YnovBank is a fictional banking platform developed as part of a Master's Degree 
     - Unit tests for API (Go), API Express, and application
     - Application build
   - **Semantic Release**:
-    - Automatic versioning for API and application
-    - Changelog generation
+    - Automatic versioning for Go API, Express API, and application
+    - Changelog generation for all components
     - Version tag creation
   - **Docker Images**:
     - Building Docker images for all components
@@ -75,9 +75,9 @@ The CI/CD pipeline is implemented using GitHub Actions with two main workflows:
 
 2. **Semantic Release** 
    - Apply semantic versioning based on commit messages
-   - Generate changelogs
-   - Create version files for API
-   - Update package.json versions
+   - Generate changelogs for all components
+   - Create version file for Go API
+   - Update package.json versions for React app and Express API
 
 3. **Docker Images**
    - Build Docker images for all components:
@@ -108,10 +108,11 @@ Similar to the develop branch workflow but with production-specific settings:
 - Production-ready version numbers without development tags
 
 ### Version Management
-- **API (Go)**: Version stored in `version.txt` file
-- **App and Express API**: Version stored in `package.json`
-- **Development Versions**: Include `-dev.X` suffix
-- **Production Versions**: Follow semantic versioning (X.Y.Z)
+- **API (Go)**: Version stored in `version.txt` file, managed by go-semantic-release
+- **App**: Version stored in `package.json`, managed by semantic-release
+- **Express API**: Version stored in `package.json`, managed by semantic-release
+- **Development Versions**: Include `-dev.X` suffix for develop branch
+- **Production Versions**: Follow semantic versioning (X.Y.Z) for main branch
 
 ### Docker Image Registry
 Images are published to Docker Hub with the following naming convention:

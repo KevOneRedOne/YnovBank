@@ -98,9 +98,20 @@ jobs:
           changelog-file: api/CHANGELOG.md
           update-file: api/version.txt
 
-      - name: Install semantic-release and plugins for App
+      - name: Install semantic-release and plugins for App and API Express
         run: |
           npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
+
+      - name: Semantic Release for API Express
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        run: |
+          if [ -f api-express/package.json ]; then
+            cd api-express
+            npx semantic-release
+          else
+            echo "API Express package.json not found, skipping semantic release"
+          fi
 
       - name: Semantic Release for App
         env:
