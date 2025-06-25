@@ -16,7 +16,7 @@ jest.config.js
 coverage/
 
 # Fichiers de développement
-src/
+# src/  <-- COMMENTÉ OU SUPPRIMÉ
 .vscode/
 .idea/
 
