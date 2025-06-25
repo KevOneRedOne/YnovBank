@@ -98,7 +98,7 @@ jobs:
           changelog-file: api/CHANGELOG.md
           update-file: api/version.txt
 
-      - name: Install semantic-release and plugins for App and API Express
+      - name: Install semantic-release and plugins for App
         run: |
           npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator
 
@@ -108,28 +108,31 @@ jobs:
         run: |
           if [ -f api-express/package.json ]; then
             cd api-express
-            # Create .releaserc.json explicitly excluding npm plugin
+            # Create custom releaserc without npm plugin
             echo '{
+              "branches": ["main"],
               "plugins": [
                 "@semantic-release/commit-analyzer",
-                "@semantic-release/release-notes-generator",
+                "@semantic-release/release-notes-generator", 
                 "@semantic-release/changelog",
                 ["@semantic-release/git", {
                   "assets": ["package.json", "CHANGELOG.md"],
                   "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
                 }],
                 "@semantic-release/github"
-              ],
-              "npmPublish": false
+              ]
             }' > .releaserc.json
+            
+            # Get current version
+            CURRENT_VERSION=$(node -p "require('./package.json').version")
+            
+            # Run semantic release with custom config
+            npx semantic-release --no-ci || echo "Semantic release failed but continuing workflow"
+            
             # Manually bump version in package.json
-            NEXT_VERSION=$(npx semantic-release --dry-run | grep -oP "The next release version is \K[0-9]+\.[0-9]+\.[0-9]+" || echo "")
-            if [ ! -z "$NEXT_VERSION" ]; then
-              npm version $NEXT_VERSION --no-git-tag-version
-            else
-              echo "No version change needed"
-            fi
-            npx semantic-release || echo "Semantic release failed but continuing workflow"
+            npm version patch --no-git-tag-version || echo "Version bump failed but continuing workflow"
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "API Express version: $CURRENT_VERSION → $NEW_VERSION"
           else
             echo "API Express package.json not found, skipping semantic release"
           fi
@@ -139,28 +142,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           cd app
-          # Create .releaserc.json without npm plugin
+          # Create custom releaserc without npm plugin
           echo '{
+            "branches": ["main"],
             "plugins": [
               "@semantic-release/commit-analyzer",
-              "@semantic-release/release-notes-generator",
+              "@semantic-release/release-notes-generator", 
               "@semantic-release/changelog",
               ["@semantic-release/git", {
                 "assets": ["package.json", "CHANGELOG.md"],
                 "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
               }],
               "@semantic-release/github"
-            ],
-            "npmPublish": false
+            ]
           }' > .releaserc.json
-          # Manually bump version in package.json as we're not using npm plugin
-          NEXT_VERSION=$(npx semantic-release --dry-run | grep -oP "The next release version is \K[0-9]+\.[0-9]+\.[0-9]+" || echo "")
-          if [ ! -z "$NEXT_VERSION" ]; then
-            npm version $NEXT_VERSION --no-git-tag-version
-          else
-            echo "No version change needed"
-          fi
-          npx semantic-release || echo "Semantic release failed but continuing workflow"
+          
+          # Run semantic release with custom config
+          npx semantic-release --no-ci || echo "Semantic release failed but continuing workflow"
 
   build-docker-images:
     name: Build and Push Docker Images
