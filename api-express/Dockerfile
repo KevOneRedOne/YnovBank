@@ -1,5 +1,5 @@
 # Utiliser l'image officielle Node.js LTS (Long Term Support)
-FROM node:18-alpine AS base
+FROM node:24-alpine AS base
 
 # Installer des dépendances système nécessaires pour Prisma et SQLite
 RUN apk add --no-cache \
