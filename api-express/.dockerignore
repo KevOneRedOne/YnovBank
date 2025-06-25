@@ -1,0 +1,64 @@
+# Dépendances
+node_modules
+npm-debug.log*
+
+# Fichiers de développement
+.env
+.env.local
+.env.development
+.env.test
+
+# Fichiers de test
+tests/
+jest.config.js
+*.test.js
+*.test.ts
+coverage/
+
+# Fichiers de développement
+src/
+.vscode/
+.idea/
+
+# Base de données de développement
+prisma/dev.db*
+prisma/test.db*
+data/
+
+# Logs
+logs
+*.log
+
+# Fichiers temporaires
+.tmp/
+tmp/
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+TESTS_SUMMARY.md
+docs/
+
+# Scripts de développement
+scripts/setup-test-db.sh
+
+# Cache
+.npm
+.eslintcache
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+*.swp
+*.swo
+*~

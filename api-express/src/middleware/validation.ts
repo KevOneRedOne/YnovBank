@@ -54,7 +54,7 @@ const transactionSchema = Joi.object({
 });
 
 export const validateRegistration = (req: Request, res: Response, next: NextFunction): void => {
-  const { error } = registrationSchema.validate(req.body);
+  const { error } = registrationSchema.validate(req.body, { abortEarly: false });
   
   if (error) {
     res.status(400).json({
@@ -69,7 +69,7 @@ export const validateRegistration = (req: Request, res: Response, next: NextFunc
 };
 
 export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
-  const { error } = loginSchema.validate(req.body);
+  const { error } = loginSchema.validate(req.body, { abortEarly: false });
   
   if (error) {
     res.status(400).json({
@@ -84,7 +84,7 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction): 
 };
 
 export const validateAccount = (req: Request, res: Response, next: NextFunction): void => {
-  const { error } = accountSchema.validate(req.body);
+  const { error } = accountSchema.validate(req.body, { abortEarly: false });
   
   if (error) {
     res.status(400).json({
@@ -99,13 +99,21 @@ export const validateAccount = (req: Request, res: Response, next: NextFunction)
 };
 
 export const validateTransaction = (req: Request, res: Response, next: NextFunction): void => {
-  const { error } = transactionSchema.validate(req.body);
+  const { error } = transactionSchema.validate(req.body, { abortEarly: false });
   
   if (error) {
+    const errors = error.details.map(detail => {
+      // Gérer les messages custom
+      if (detail.type === 'any.custom' && detail.context?.message) {
+        return detail.context.message;
+      }
+      return detail.message;
+    });
+    
     res.status(400).json({
       success: false,
       message: 'Données invalides',
-      errors: error.details.map(detail => detail.message)
+      errors
     });
     return;
   }

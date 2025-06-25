@@ -265,6 +265,16 @@ app.get('/', (req, res) => {
   });
 });
 
+// Endpoint de santé pour Docker healthcheck
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Middleware de gestion des erreurs 404
 app.use('*', (req, res) => {
   res.status(404).json({
