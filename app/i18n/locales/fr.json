@@ -97,5 +97,15 @@
     "signIn": "Se connecter",
     "noAccount": "Pas encore de compte ?",
     "register": "Créer un compte"
+  },
+  "register": {
+    "title": "Créer un compte YnovBank",
+    "subtitle": "Rejoignez-nous pour une expérience bancaire moderne et sécurisée.",
+    "name": "Nom",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "signUp": "S'inscrire",
+    "allreadyRegister": "Déjà inscrit ?",
+    "login": "Se connecter"
   }
 }
