@@ -45,11 +45,26 @@
     "noAccount": "No account yet?",
     "register": "Create an account"
   },
+  "register": {
+    "title": "Create your YnovBank account",
+    "subtitle": "Join us and enjoy a modern banking experience.",
+    "name": "Name",
+    "email": "Email address",
+    "password": "Password",
+    "signUp": "Sign up",
+    "allreadyRegister": "Already have an account?",
+    "login": "Sign in"
+  },
   "dashboard": {
     "welcome": "Welcome to your dashboard",
     "totalBalance": "Total Balance",
     "income": "Income",
     "expenses": "Expenses",
+    "loading": "Loading...",
+    "noTransactions": "No recent transactions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "accounts": "My Accounts",
     "quickActions": {
       "transfer": "Transfer",
       "payBills": "Pay Bills",
@@ -59,13 +74,30 @@
     "recentTransactions": "Recent Transactions",
     "viewAll": "View All",
     "accountActivity": "Account Activity",
+    "accountTypes": {
+      "checking": "Checking Account",
+      "savings": "Savings Account",
+      "business": "Business Account"
+    },
+    "transactionTypes": {
+      "deposit": "Deposit",
+      "withdrawal": "Withdrawal",
+      "transfer": "Transfer",
+      "payment": "Payment"
+    },
+    "chart": {
+      "income": "Income",
+      "expenses": "Expenses"
+    },
     "transaction": {
       "date": "Date",
       "description": "Description",
       "amount": "Amount",
       "status": {
         "completed": "completed",
-        "pending": "pending"
+        "pending": "pending",
+        "failed": "failed",
+        "cancelled": "cancelled"
       },
       "salaryDeposit": "Salary Deposit",
       "groceryStore": "Grocery Store",
