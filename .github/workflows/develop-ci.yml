@@ -257,6 +257,9 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/ynovbank:express-develop
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:express-latest
           cache-to: type=inline
+      - name: Trigger Render deploy via webhook
+        run: |
+          curl -X POST ${{ secrets.RENDER_STAGING_DEPLOY_HOOK }}
 
   create-release:
     name: Create GitHub Release
