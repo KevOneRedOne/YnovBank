@@ -60,6 +60,11 @@
     "totalBalance": "Total Balance",
     "income": "Income",
     "expenses": "Expenses",
+    "loading": "Loading...",
+    "noTransactions": "No recent transactions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "accounts": "My Accounts",
     "quickActions": {
       "transfer": "Transfer",
       "payBills": "Pay Bills",
@@ -69,13 +74,30 @@
     "recentTransactions": "Recent Transactions",
     "viewAll": "View All",
     "accountActivity": "Account Activity",
+    "accountTypes": {
+      "checking": "Checking Account",
+      "savings": "Savings Account",
+      "business": "Business Account"
+    },
+    "transactionTypes": {
+      "deposit": "Deposit",
+      "withdrawal": "Withdrawal",
+      "transfer": "Transfer",
+      "payment": "Payment"
+    },
+    "chart": {
+      "income": "Income",
+      "expenses": "Expenses"
+    },
     "transaction": {
       "date": "Date",
       "description": "Description",
       "amount": "Amount",
       "status": {
         "completed": "completed",
-        "pending": "pending"
+        "pending": "pending",
+        "failed": "failed",
+        "cancelled": "cancelled"
       },
       "salaryDeposit": "Salary Deposit",
       "groceryStore": "Grocery Store",
