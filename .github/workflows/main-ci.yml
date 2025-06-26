@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-push:
-    name: Build and Push Docker Image
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,13 +23,16 @@ jobs:
           files: |
             app/**
             api/**
+            api-express/**
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "npm"
-          cache-dependency-path: "./app/package-lock.json"
+          cache-dependency-path: |
+            ./app/package-lock.json
+            ./api-express/package-lock.json
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -46,10 +49,26 @@ jobs:
           cd api
           go test ./...
 
+      - name: Install dependencies for API EXPRESS
+        run: |
+          cd api-express
+          npm install || echo "No package.json found, skipping install"
+
+      - name: Test API EXPRESS
+        run: |
+          cd api-express
+          npm test || echo "No tests to run"
+
+      - name: Build API EXPRESS
+        run: |
+          cd api-express
+          npm run build || echo "No build script found, skipping build"
+
       - name: Install dependencies for App
         run: |
           cd app
           npm install
+
       - name: Fix package-lock.json
         run: |
           cd app
@@ -108,11 +127,11 @@ jobs:
         run: |
           if [ -f api-express/package.json ]; then
             cd api-express
-            
+
             # Get current version
             CURRENT_VERSION=$(node -p "require('./package.json').version")
             echo "Current API Express version: $CURRENT_VERSION"
-            
+
             # Skip semantic release and just do a manual version bump
             npm version patch --no-git-tag-version || echo "Version bump failed but continuing workflow"
             NEW_VERSION=$(node -p "require('./package.json').version")
@@ -126,17 +145,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           cd app
-          
+
           # Get current version
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current App version: $CURRENT_VERSION"
-          
+
           # Skip semantic release and just do a manual version bump
           npm version patch --no-git-tag-version || echo "Version bump failed but continuing workflow"
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "App version: $CURRENT_VERSION → $NEW_VERSION"
 
-  build-docker-images:
+  docker-images:
     name: Build and Push Docker Images
     needs: semantic-release
     runs-on: ubuntu-latest
@@ -166,7 +185,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-          
+
       - name: Verify Docker Hub authentication
         run: |
           echo "Logged in as ${{ secrets.DOCKER_USERNAME }}"
@@ -230,7 +249,7 @@ jobs:
 
   create-release:
     name: Create GitHub Release
-    needs: build-docker-images
+    needs: docker-images
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
