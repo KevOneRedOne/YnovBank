@@ -82,17 +82,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useFetch } from '@vueuse/core';
+  import { useCookies } from '@vueuse/integrations/useCookies';
+  import { useRuntimeConfig } from '#app';
 
-const email = ref('');
-const password = ref('');
-const rememberMe = ref(false);
-const router = useRouter();
+  const email = ref('');
+  const password = ref('');
+  const rememberMe = ref(false);
+  const router = useRouter();
 
-function handleLogin() {
-  // Logique d'authentification à implémenter
-  // Redirection simulée vers le dashboard
-  router.push('/dashboard');
-}
+  const config = useRuntimeConfig();
+  const API_BASE = config.public.apiBase;
+
+  async function handleLogin() {
+    try {
+      const { data, error } = await useFetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify({
+          email: email.value,
+          password: password.value,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (error.value) {
+        console.error('Login failed:', error.value);
+        alert('Login failed. Please check your credentials.');
+        return;
+      }
+
+      if (data.value.sucess && data.value.user) {
+        cookies.set('user', user, { path: '/', maxAge: rememberMe.value ? 604800 : undefined });
+        cookies.set('token', data.value.token, { path: '/', maxAge: rememberMe.value ? 604800 : undefined });
+        router.push('/dashboard');
+      } else {
+        alert( data.value.message || 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('An error occurred during login:', err);
+      alert('An unexpected error occurred. Please try again later.');
+    }
+  }
 </script>

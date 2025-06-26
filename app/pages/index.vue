@@ -11,10 +11,10 @@
             {{ $t('home.hero.subtitle') }}
           </p>
           <div class="flex justify-center space-x-4">
-            <NuxtLink to="/register" class="btn-primary">
+            <NuxtLink to="/auth/register" class="btn-primary">
               {{ $t('home.hero.getStarted') }}
             </NuxtLink>
-            <NuxtLink to="/about" class="btn-secondary">
+            <NuxtLink to="/" class="btn-secondary">
               {{ $t('home.hero.learnMore') }}
             </NuxtLink>
           </div>

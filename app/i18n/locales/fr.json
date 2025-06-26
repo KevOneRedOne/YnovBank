@@ -34,6 +34,11 @@
     "totalBalance": "Solde Total",
     "income": "Revenus",
     "expenses": "Dépenses",
+    "loading": "Chargement...",
+    "noTransactions": "Aucune transaction récente",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "accounts": "Mes Comptes",
     "quickActions": {
       "transfer": "Virement",
       "payBills": "Payer des factures",
@@ -43,13 +48,30 @@
     "recentTransactions": "Transactions Récentes",
     "viewAll": "Voir tout",
     "accountActivity": "Activité du Compte",
+    "accountTypes": {
+      "checking": "Compte Courant",
+      "savings": "Compte Épargne",
+      "business": "Compte Professionnel"
+    },
+    "transactionTypes": {
+      "deposit": "Dépôt",
+      "withdrawal": "Retrait",
+      "transfer": "Virement",
+      "payment": "Paiement"
+    },
+    "chart": {
+      "income": "Revenus",
+      "expenses": "Dépenses"
+    },
     "transaction": {
       "date": "Date",
       "description": "Description",
       "amount": "Montant",
       "status": {
         "completed": "terminé",
-        "pending": "en attente"
+        "pending": "en attente",
+        "failed": "échoué",
+        "cancelled": "annulé"
       },
       "salaryDeposit": "Versement de salaire",
       "groceryStore": "Supermarché",
@@ -97,5 +119,15 @@
     "signIn": "Se connecter",
     "noAccount": "Pas encore de compte ?",
     "register": "Créer un compte"
+  },
+  "register": {
+    "title": "Créer un compte YnovBank",
+    "subtitle": "Rejoignez-nous pour une expérience bancaire moderne et sécurisée.",
+    "name": "Nom",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "signUp": "S'inscrire",
+    "allreadyRegister": "Déjà inscrit ?",
+    "login": "Se connecter"
   }
 }

@@ -8,7 +8,7 @@
 
         <div class="flex items-center space-x-4">
           <NuxtLink to="/dashboard" class="nav-link">{{ $t('header.dashboard') }}</NuxtLink>
-          <NuxtLink to="/transactions" class="nav-link">{{ $t('header.transactions') }}</NuxtLink>
+          <NuxtLink to="/auth/login" class="nav-link">Déconnexion</NuxtLink>
           <NuxtLink to="/profile" class="nav-link">{{ $t('header.profile') }}</NuxtLink>
 
           <button
