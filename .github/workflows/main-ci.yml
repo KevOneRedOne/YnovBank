@@ -247,6 +247,10 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ynovbank:express-latest
           cache-to: type=inline
 
+      - name: Trigger Render deploy via webhook
+        run: |
+          curl -X POST ${{ secrets.RENDER_PROD_DEPLOY_HOOK }}
+
   create-release:
     name: Create GitHub Release
     needs: docker-images
