@@ -3,6 +3,10 @@
 ## Project Description
 YnovBank is a fictional banking platform developed as part of a Master's Degree 2 learning unit. This project demonstrates the implementation of a modern banking system allowing users to connect and perform transfers. The project is developed with an automated CI/CD pipeline using GitHub Actions, implementing Gitflow for branch management and semantic-release for versioning.
 
+## Environment
+- **RenderDevelop**: [YnovBank - Staging](https://ynovbank-app-develop.onrender.com/)
+- **RenderProduction**: [YnovBank - Production](https://ynovbank-app-prod.onrender.com/)
+
 ## Technical Specifications
 
 ### Tech Stack
