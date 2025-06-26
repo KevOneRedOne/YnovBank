@@ -74,46 +74,67 @@
   
   <script setup lang="ts">
     import { ref } from 'vue';
-    import { useRouter } from 'vue-router';
-    import { useFetch } from '@vueuse/core';
-    import { useCookies } from '@vueuse/integrations/useCookies';
     import { useRuntimeConfig } from '#app';
   
     const email = ref('');
     const password = ref('');
     const name = ref('');
     const rememberMe = ref(false);
-    const router = useRouter();
   
     const config = useRuntimeConfig();
     const API_BASE = config.public.apiBase;
   
+    interface RegisterResponse {
+      success: boolean;
+      token: string;
+      user?: any;
+      [key: string]: any;
+    }
+
     async function handleRegister() {
       try {
-        const { data, error } = await useFetch(`${API_BASE}/api/auth/register`, {
+        const response = await $fetch<RegisterResponse>(`${API_BASE}/api/auth/register`, {
           method: 'POST',
-          body: JSON.stringify({
+          body: {
             email: email.value,
             password: password.value,
             name: name.value,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
           },
         });
   
-        if (error.value) {
-          console.error('Register failed:', error.value);
-          alert('Register failed. Please check your credentials.');
-          return;
-        }
-  
-        if (data.value.sucess && data.value.user) {
-          cookies.set('user', user, { path: '/', maxAge: rememberMe.value ? 604800 : undefined });
-          cookies.set('token', data.value.token, { path: '/', maxAge: rememberMe.value ? 604800 : undefined });
-          router.push('/dashboard');
+        console.log('Register response:', response);
+        
+        if (response && response.success) {
+          // Utiliser useCookie de Nuxt pour définir les cookies
+          const userCookie = useCookie('user', {
+            maxAge: rememberMe.value ? 604800 : undefined,
+            default: () => null as any,
+            secure: false, // Changé à false pour le développement
+            sameSite: 'lax' // Changé à lax pour plus de compatibilité
+          });
+          
+          const tokenCookie = useCookie('token', {
+            maxAge: rememberMe.value ? 604800 : undefined,
+            default: () => null as any,
+            secure: false, // Changé à false pour le développement
+            sameSite: 'lax' // Changé à lax pour plus de compatibilité
+          });
+          
+          userCookie.value = response.user;
+          tokenCookie.value = response.token;
+          
+          console.log('Cookies set, redirecting to dashboard...');
+          console.log('User cookie:', userCookie.value);
+          console.log('Token cookie:', tokenCookie.value);
+          
+          // Utiliser navigateTo pour la redirection avec force refresh
+          await navigateTo('/dashboard', { replace: true });
+          
+          // Alternative si navigateTo ne marche pas
+          // window.location.href = '/dashboard';
         } else {
-          alert( data.value.message || 'Register failed. Please try again.');
+          console.error('Register failed: success is false');
+          alert('Register failed. Please try again.');
         }
       } catch (err) {
         console.error('An error occurred during register:', err);
