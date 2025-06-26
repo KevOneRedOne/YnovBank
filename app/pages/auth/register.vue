@@ -84,10 +84,17 @@
     const config = useRuntimeConfig();
     const API_BASE = config.public.apiBase;
   
+    interface User {
+      id: number;
+      name: string;
+      email: string;
+      [key: string]: any;
+    }
+
     interface RegisterResponse {
       success: boolean;
       token: string;
-      user?: any;
+      user?: User;
       [key: string]: any;
     }
 
@@ -105,33 +112,24 @@
         console.log('Register response:', response);
         
         if (response && response.success) {
-          // Utiliser useCookie de Nuxt pour définir les cookies
-          const userCookie = useCookie('user', {
+          const userCookie = useCookie<User | null>('user', {
             maxAge: rememberMe.value ? 604800 : undefined,
-            default: () => null as any,
-            secure: false, // Changé à false pour le développement
-            sameSite: 'lax' // Changé à lax pour plus de compatibilité
+            default: () => null,
+            secure: false,
+            sameSite: 'lax'
           });
           
           const tokenCookie = useCookie('token', {
             maxAge: rememberMe.value ? 604800 : undefined,
-            default: () => null as any,
-            secure: false, // Changé à false pour le développement
-            sameSite: 'lax' // Changé à lax pour plus de compatibilité
+            default: () => '',
+            secure: false,
+            sameSite: 'lax'
           });
           
-          userCookie.value = response.user;
+          userCookie.value = response.user || null;
           tokenCookie.value = response.token;
           
-          console.log('Cookies set, redirecting to dashboard...');
-          console.log('User cookie:', userCookie.value);
-          console.log('Token cookie:', tokenCookie.value);
-          
-          // Utiliser navigateTo pour la redirection avec force refresh
           await navigateTo('/dashboard', { replace: true });
-          
-          // Alternative si navigateTo ne marche pas
-          // window.location.href = '/dashboard';
         } else {
           console.error('Register failed: success is false');
           alert('Register failed. Please try again.');
