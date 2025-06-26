@@ -1,11 +1,26 @@
-# YnovBank [![Build, Test and Deploy - Main Branch](https://github.com/KevOneRedOne/YnovBank/actions/workflows/main-ci.yml/badge.svg?branch=main)](https://github.com/KevOneRedOne/YnovBank/actions/workflows/main-ci.yml) [![Build, Test and Deploy - Develop Branch](https://github.com/KevOneRedOne/YnovBank/actions/workflows/develop-ci.yml/badge.svg?branch=develop)](https://github.com/KevOneRedOne/YnovBank/actions/workflows/develop-ci.yml)
+# YnovBank
 
 ## Project Description
 YnovBank is a fictional banking platform developed as part of a Master's Degree 2 learning unit. This project demonstrates the implementation of a modern banking system allowing users to connect and perform transfers. The project is developed with an automated CI/CD pipeline using GitHub Actions, implementing Gitflow for branch management and semantic-release for versioning.
 
 ## Environment
-- **RenderDevelop**: [YnovBank - Staging](https://ynovbank-app-develop.onrender.com/)
-- **RenderProduction**: [YnovBank - Production](https://ynovbank-app-prod.onrender.com/)
+[![Build, Test and Deploy - Main Branch](https://github.com/KevOneRedOne/YnovBank/actions/workflows/main-ci.yml/badge.svg?branch=main)](https://github.com/KevOneRedOne/YnovBank/actions/workflows/main-ci.yml) [![Build, Test and Deploy - Develop Branch](https://github.com/KevOneRedOne/YnovBank/actions/workflows/develop-ci.yml/badge.svg?branch=develop)](https://github.com/KevOneRedOne/YnovBank/actions/workflows/develop-ci.yml)
+
+### Staging and Production
+- The application is deployed on Render with two environments:
+  - **Staging**: For testing and development purposes
+  - **Production**: For live user access
+
+- The staging and production environments are accessible via the following URLs:
+  - [YnovBank - Staging](https://ynovbank-app-develop.onrender.com/)
+  - [YnovBank - Production](https://ynovbank-app-prod.onrender.com/)
+
+### Registry Docker Hub
+- Docker images for all components are published to Docker Hub:
+  - **Repository**: `kevoneredone/ynovbank`
+  - **Tags**: `latest`, `develop`, `prod` with the service name as a suffix (e.g., `kevoneredone/ynovbank:app-prod`, `kevoneredone/ynovbank:api-prod`, `kevoneredone/ynovbank:express-prod`)
+- [Registry Docker Hub ](https://hub.docker.com/repository/docker/kevoneredone/ynovbank/general)
+
 
 ## Technical Specifications
 
